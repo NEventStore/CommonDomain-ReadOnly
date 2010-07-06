@@ -5,5 +5,6 @@ namespace CommonDomain
 	public interface IProduceEvents
 	{
 		ICollection GetUncommittedEvents();
+		void ClearUncommittedEvents();
 	}
 }

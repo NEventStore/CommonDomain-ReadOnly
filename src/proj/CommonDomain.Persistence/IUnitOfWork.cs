@@ -4,9 +4,7 @@ namespace CommonDomain.Persistence
 
 	public interface IUnitOfWork : IDisposable
 	{
-		void RegisterNew(IAggregate aggregate);
-		void RegisterDirty(IAggregate aggregate);
-		void RegisterDeleted(IAggregate aggregate);
+		void Register(Guid id, Action action);
 
 		void Complete();
 	}
