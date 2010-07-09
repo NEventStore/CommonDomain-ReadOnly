@@ -159,11 +159,12 @@
             Represents the mechanism used to read from and write to persistent event storage.
             </summary>
     </member>
-    <member name="M:EventStore.IStoreEvents.Read(System.Guid)">
+    <member name="M:EventStore.IStoreEvents.Read(System.Guid,System.Int64)">
       <summary>
             Reads all events for the specified aggregate.
             </summary>
       <param name="id">The value which uniquely identifies the aggregate of the events to be loaded.</param>
+      <param name="maxStartingVersion">The maximum version at which to start reading the aggregate event stream.</param>
       <returns>A stream of committed events for the specified aggregate.</returns>
     </member>
     <member name="M:EventStore.IStoreEvents.Write(EventStore.UncommittedEventStream)">
@@ -187,9 +188,14 @@
             Gets or sets the type of aggregate to which the event stream belongs.
             </summary>
     </member>
+    <member name="P:EventStore.UncommittedEventStream.ExpectedVersion">
+      <summary>
+            Gets or sets the version of the stream of events when it was originally loaded.
+            </summary>
+    </member>
     <member name="P:EventStore.UncommittedEventStream.CommandId">
       <summary>
-            Gets or sets the optional value which uniquely identifies the command for the events being persisted.
+            Gets or sets the optional value which uniquely identifies the command identifier for the events being persisted.
             </summary>
     </member>
     <member name="P:EventStore.UncommittedEventStream.Command">
@@ -257,20 +263,21 @@
       <param name="input">The bytes from which the object will be reconstructed.</param>
       <returns>The reconstructed object.</returns>
     </member>
-    <member name="T:EventStore.IStorageEngine">
+    <member name="T:EventStore.IAdaptStorage">
       <summary>
-            Provides the ability to load and save objects which utilize event sourcing.
+            Adapts the underlying persistence infrastructure to facilitate event sourcing.
             </summary>
     </member>
-    <member name="M:EventStore.IStorageEngine.LoadById(System.Guid)">
+    <member name="M:EventStore.IAdaptStorage.LoadById(System.Guid,System.Int64)">
       <summary>
             Reads all events for the specified aggregate.
             </summary>
       <param name="id">The value which uniquely identifies the aggregate of the events to be loaded.</param>
+      <param name="maxStartingVersion">The maxium version at which to start reading the aggregate event stream.</param>
       <returns>A stream of committed events for the specified aggregate.</returns>
       <exception cref="T:EventStore.StorageEngineException" />
     </member>
-    <member name="M:EventStore.IStorageEngine.LoadByCommandId(System.Guid)">
+    <member name="M:EventStore.IAdaptStorage.LoadByCommandId(System.Guid)">
       <summary>
             Reads all events associated with the specified command identifier.
             </summary>
@@ -278,7 +285,7 @@
       <returns>A collection of committed events for the specified command identifier.</returns>
       <exception cref="T:EventStore.StorageEngineException" />
     </member>
-    <member name="M:EventStore.IStorageEngine.LoadStartingAfter(System.Guid,System.Int64)">
+    <member name="M:EventStore.IAdaptStorage.LoadStartingAfter(System.Guid,System.Int64)">
       <summary>
             Reads all events for the specified aggregate starting after the indicated version.
             </summary>
@@ -287,12 +294,11 @@
       <returns>A collection of committed events for the specified aggregate.</returns>
       <exception cref="T:EventStore.StorageEngineException" />
     </member>
-    <member name="M:EventStore.IStorageEngine.Save(EventStore.UncommittedEventStream,System.Int64)">
+    <member name="M:EventStore.IAdaptStorage.Save(EventStore.UncommittedEventStream)">
       <summary>
             Writes the stream of uncommitted events to persistent storage.
             </summary>
       <param name="stream">The stream of uncomitted events to be persisted.</param>
-      <param name="initialVersion">The version when the aggregate was loaded.</param>
       <exception cref="T:EventStore.ConcurrencyException" />
       <exception cref="T:EventStore.DuplicateCommandException" />
       <exception cref="T:EventStore.StorageEngineException" />

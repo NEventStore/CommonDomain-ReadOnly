@@ -41,14 +41,14 @@
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="AggregateFactory.cs" />
+    <Compile Include="CommandContext.cs" />
+    <Compile Include="IdentityMapEntry.cs" />
     <Compile Include="ConflictingCommandException.cs" />
-    <Compile Include="IConflictWith.cs" />
-    <Compile Include="IIdentityMap.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="IUnitOfWork.cs" />
     <Compile Include="PersistenceException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ThreadedIdentityMap.cs" />
+    <Compile Include="SimpleUnitOfWork.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\CustomDictionary.xml">

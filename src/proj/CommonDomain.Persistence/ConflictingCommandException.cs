@@ -4,7 +4,7 @@ namespace CommonDomain.Persistence
 	using System.Runtime.Serialization;
 
 	/// <summary>
-	/// Represents a general failure of the storage engine.
+	/// Represents a command that could not be executed because it conflicted with the command of another user or actor.
 	/// </summary>
 	[Serializable]
 	public class ConflictingCommandException : Exception

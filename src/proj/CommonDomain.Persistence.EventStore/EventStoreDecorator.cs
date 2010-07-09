@@ -7,22 +7,19 @@ namespace CommonDomain.Persistence.EventStore
 	public class EventStoreDecorator : IStoreEvents
 	{
 		private readonly IStoreEvents eventStore;
-		private readonly IIdentityMap identityMap;
 		private readonly IConflictWith conflictDetector;
 
-		public EventStoreDecorator(
-			IStoreEvents eventStore, IIdentityMap identityMap, IConflictWith conflictDetector)
+		public EventStoreDecorator(IStoreEvents eventStore, IConflictWith conflictDetector)
 		{
 			this.eventStore = eventStore;
-			this.identityMap = identityMap;
 			this.conflictDetector = conflictDetector;
 		}
 
-		public CommittedEventStream Read(Guid id)
+		public CommittedEventStream Read(Guid id, long maxStartingVersion)
 		{
 			try
 			{
-				return this.eventStore.Read(id);
+				return this.eventStore.Read(id, maxStartingVersion);
 			}
 			catch (StorageEngineException e)
 			{
@@ -57,7 +54,6 @@ namespace CommonDomain.Persistence.EventStore
 					continue;
 
 				// events don't reconcile; TODO: how do we notify the client/caller of a stale command?
-				this.identityMap.Eject(uncommitted.Id);
 				throw new ConflictingCommandException(exception.Message, exception);
 			}
 		}

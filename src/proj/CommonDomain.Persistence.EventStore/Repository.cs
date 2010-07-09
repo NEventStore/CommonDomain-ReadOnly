@@ -44,7 +44,7 @@ namespace CommonDomain.Persistence.EventStore
 		}
 		private IAggregate GetFromEventStore(Guid id)
 		{
-			var stream = this.eventStore.Read(id);
+			var stream = this.eventStore.Read(id, 0);
 
 			var aggregate = this.buildAggregate(id, stream.Snapshot);
 			foreach (var @event in stream.Events)

@@ -41,9 +41,7 @@
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="IAggregate.cs" />
-    <Compile Include="IApplyEvents.cs" />
-    <Compile Include="IProduceSnapshots.cs" />
-    <Compile Include="IProduceEvents.cs" />
+    <Compile Include="IMomento.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

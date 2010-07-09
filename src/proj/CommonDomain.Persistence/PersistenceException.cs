@@ -4,7 +4,7 @@ namespace CommonDomain.Persistence
 	using System.Runtime.Serialization;
 
 	/// <summary>
-	/// Represents a general failure of the storage engine.
+	/// Represents a general failure of the persistence infrastructure.
 	/// </summary>
 	[Serializable]
 	public class PersistenceException : Exception
