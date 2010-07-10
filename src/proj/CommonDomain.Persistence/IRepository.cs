@@ -4,8 +4,7 @@ namespace CommonDomain.Persistence
 
 	public interface IRepository
 	{
-		void Add(IAggregate aggregate);
-		TAggregate GetById<TAggregate>(Guid id, long version)
-			where TAggregate : class, IAggregate;
+		TAggregate GetById<TAggregate>(Guid id) where TAggregate : class, IAggregate;
+		void Save(IAggregate aggregate);
 	}
 }

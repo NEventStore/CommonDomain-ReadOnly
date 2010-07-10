@@ -7,7 +7,7 @@ namespace CommonDomain.Persistence
 		public CommandContext(Guid id, long version, object message)
 		{
 			this.Id = id;
-			this.Version = version;
+			this.Version = version >= 0 ? version : 0;
 			this.Message = message;
 		}
 

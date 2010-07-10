@@ -9,9 +9,7 @@ namespace CommonDomain
 		long Version { get; }
 
 		void ApplyEvent(object @event);
-		void ClearUncommittedEvents();
 		ICollection GetUncommittedEvents();
-
 		IMomento GetSnapshot();
 	}
 }
