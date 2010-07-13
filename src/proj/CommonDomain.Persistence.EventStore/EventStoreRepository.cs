@@ -54,6 +54,7 @@ namespace CommonDomain.Persistence.EventStore
 				throw new NotSupportedException(ExceptionMessages.NoWork);
 
 			this.Persist(stream);
+			aggregate.ClearUncommittedEvents();
 		}
 		private UncommittedEventStream BuildStream(IAggregate aggregate)
 		{
