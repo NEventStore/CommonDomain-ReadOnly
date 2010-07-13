@@ -13,7 +13,7 @@ namespace CommonDomain.Persistence.Core
 
 		public CommandContext GetCurrent()
 		{
-			return this.current;
+			return this.current ?? new CommandContext(Guid.Empty, 0, null);
 		}
 	}
 }

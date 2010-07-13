@@ -44,7 +44,7 @@ namespace CommonDomain.Persistence.EventStore
 		}
 		private static bool CanApplyEvent(IAggregate aggregate, CommandContext current)
 		{
-			return current == null || current.Version == 0 || aggregate.Version < current.Version;
+			return current.Version == 0 || aggregate.Version < current.Version;
 		}
 
 		public void Save(IAggregate aggregate)
@@ -53,16 +53,20 @@ namespace CommonDomain.Persistence.EventStore
 			if (stream.Events.Count == 0)
 				throw new NotSupportedException(ExceptionMessages.NoWork);
 
-			this.Persist(this.BuildStream(aggregate));
+			this.Persist(stream);
 		}
 		private UncommittedEventStream BuildStream(IAggregate aggregate)
 		{
+			if (aggregate == null)
+				throw new ArgumentNullException(ExceptionMessages.AggregateArgument, ExceptionMessages.NullArgument);
+
 			var context = this.commandContext.GetCurrent();
 			var events = aggregate.GetUncommittedEvents();
 
 			return new UncommittedEventStream
 			{
 				Id = aggregate.Id,
+				Type = aggregate.GetType(),
 				ExpectedVersion = aggregate.Version - events.Count,
 				CommandId = context.Id,
 				Command = context.Message,

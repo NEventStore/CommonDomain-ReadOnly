@@ -10,13 +10,8 @@ namespace CommonDomain.Core
 		private readonly IDictionary<Type, Action<TEvent>> handlers = new Dictionary<Type, Action<TEvent>>();
 		private readonly ICollection<TEvent> uncommittedEvents = new LinkedList<TEvent>();
 
-		protected AggregateBase(Guid id)
-		{
-			this.Id = id;
-		}
-
-		public Guid Id { get; private set; }
-		public long Version { get; private set; }
+		public Guid Id { get; protected set; }
+		public long Version { get; protected set; }
 
 		protected void Register<TEventType>(Action<TEventType> handler)
 			where TEventType : class, TEvent
@@ -43,6 +38,13 @@ namespace CommonDomain.Core
 			this.uncommittedEvents.Clear();
 		}
 
-		public abstract IMomento GetSnapshot();
+		IMomento IAggregate.GetSnapshot()
+		{
+			var snapshot = this.TakeSnapshot();
+			snapshot.Id = this.Id;
+			snapshot.Version = this.Version;
+			return snapshot;
+		}
+		protected abstract IMomento TakeSnapshot();
 	}
 }
