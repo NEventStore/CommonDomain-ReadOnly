@@ -5,22 +5,22 @@ namespace CommonDomain.Persistence.EventStore
 
 	public class EventStoreRepository : IRepository
 	{
-		private readonly IIdentityMap localMap;
-		private readonly IUnitOfWork unitOfWork;
 		private readonly IScopeCommandContext commandContext;
 		private readonly IStoreEvents eventStore;
 		private readonly AggregateFactory factory;
+		private readonly IPublishCommittedEvents bus;
+		private readonly IDetectConflicts conflictDetector;
 
 		public EventStoreRepository(
-			IIdentityMap localMap,
-			IUnitOfWork unitOfWork,
 			IScopeCommandContext commandContext,
 			IStoreEvents eventStore,
-			AggregateFactory factory)
+			AggregateFactory factory,
+			IPublishCommittedEvents bus,
+			IDetectConflicts conflictDetector)
 		{
-			this.localMap = localMap;
-			this.unitOfWork = unitOfWork;
 			this.commandContext = commandContext;
+			this.conflictDetector = conflictDetector;
+			this.bus = bus;
 			this.eventStore = eventStore;
 			this.factory = factory;
 		}
@@ -28,23 +28,76 @@ namespace CommonDomain.Persistence.EventStore
 		public TAggregate GetById<TAggregate>(Guid id)
 			where TAggregate : class, IAggregate
 		{
-			// if same cmd ID, it should return the exact same instance (per TAggregate) each time
-			// without re-enlisting in the UoW.
-
-			return default(TAggregate);
-		}
-
-		public void Add(IAggregate aggregate)
-		{
-			this.localMap.Add(new IdentityMapEntry(aggregate));
 			var context = this.commandContext.GetCurrent();
-			this.unitOfWork.Register(() => this.Persist(aggregate, context));
+			var stream = this.eventStore.Read(id, context.Version);
+			return this.BuildAggregate(stream, context) as TAggregate;
+		}
+		private IAggregate BuildAggregate(CommittedEventStream stream, CommandContext context)
+		{
+			var aggregate = this.factory(stream.Id, stream.Snapshot as IMomento);
+
+			foreach (var @event in stream.Events)
+			{
+				if (CanApplyEvent(aggregate, context))
+					aggregate.ApplyEvent(@event);
+			}
+
+			return aggregate;
+		}
+		private static bool CanApplyEvent(IAggregate aggregate, CommandContext current)
+		{
+			return current == null || current.Version == 0 || aggregate.Version < current.Version;
 		}
 
-		private void Persist(IAggregate aggregate, CommandContext context)
+		public void Save(IAggregate aggregate)
 		{
-			// guaranteed to have an identity map entry at this point...
-			// which started on/before the earliest command version
+			var stream = this.BuildStream(aggregate);
+			if (stream.Events.Count == 0)
+				throw new NotSupportedException(ExceptionMessages.NoWork);
+
+			this.Persist(this.BuildStream(aggregate));
+		}
+		private UncommittedEventStream BuildStream(IAggregate aggregate)
+		{
+			var context = this.commandContext.GetCurrent();
+			var events = aggregate.GetUncommittedEvents();
+
+			return new UncommittedEventStream
+			{
+				Id = aggregate.Id,
+				ExpectedVersion = aggregate.Version - events.Count,
+				CommandId = context.Id,
+				Command = context.Message,
+				Events = events
+			};
+		}
+		private void Persist(UncommittedEventStream stream)
+		{
+			try
+			{
+				this.eventStore.Write(stream);
+				this.bus.Publish(stream.Events);
+			}
+			catch (StorageEngineException e)
+			{
+				throw new PersistenceException(e.Message, e);
+			}
+			catch (ConcurrencyException e)
+			{
+				this.ResolveConcurrencyConflict(stream, e);
+			}
+			catch (DuplicateCommandException e)
+			{
+				this.bus.Publish(e.CommittedEvents);
+			}
+		}
+		private void ResolveConcurrencyConflict(UncommittedEventStream stream, ConcurrencyException exception)
+		{
+			if (this.conflictDetector.ConflictsWith(stream.Events, exception.CommittedEvents))
+				throw new ConflictingCommandException(ExceptionMessages.ConflictingCommand, exception);
+
+			stream.ExpectedVersion += exception.CommittedEvents.Count;
+			this.Persist(stream);
 		}
 	}
 }
