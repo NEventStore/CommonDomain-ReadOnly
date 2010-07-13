@@ -4,8 +4,8 @@ namespace CommonDomain.Persistence
 
 	public interface IIdentityMap
 	{
-		IAggregate GetById(Guid id);
-		void Add(IAggregate aggregate);
-		void Eject(Guid id);
+		IdentityMapEntry GetById(Guid id);
+		void Add(IdentityMapEntry entry);
+		void Remove(Guid aggregateId);
 	}
 }

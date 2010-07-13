@@ -1,8 +1,8 @@
-namespace CommonDomain.Persistence
+namespace CommonDomain.Persistence.Core
 {
 	using System;
 
-	public class CommandContextHandler : IHandleCommandContext
+	public class CommandContextScope : IScopeCommandContext
 	{
 		private CommandContext current;
 
