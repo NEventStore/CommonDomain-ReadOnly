@@ -10,6 +10,8 @@ namespace CommonDomain
 
 		void ApplyEvent(object @event);
 		ICollection GetUncommittedEvents();
+		void ClearUncommittedEvents();
+
 		IMomento GetSnapshot();
 	}
 }

@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonDomain.Persistence", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonDomain.Persistence.EventStore", "proj\CommonDomain.Persistence.EventStore\CommonDomain.Persistence.EventStore.csproj", "{F489D9D1-F275-4018-A86F-D84352BCD4E9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonDomain.Persistence.Core", "proj\CommonDomain.Persistence.Core\CommonDomain.Persistence.Core.csproj", "{73C2FD41-C867-4876-BB2F-C5EC90553C49}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{F489D9D1-F275-4018-A86F-D84352BCD4E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F489D9D1-F275-4018-A86F-D84352BCD4E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F489D9D1-F275-4018-A86F-D84352BCD4E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73C2FD41-C867-4876-BB2F-C5EC90553C49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73C2FD41-C867-4876-BB2F-C5EC90553C49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73C2FD41-C867-4876-BB2F-C5EC90553C49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73C2FD41-C867-4876-BB2F-C5EC90553C49}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -44,5 +50,6 @@ Global
 		{51C99F4D-CCF0-431A-B37C-D620EF1DF37B} = {06FD3DEE-6B33-408C-AFE4-6FADE5525AB0}
 		{75C8F482-B38D-428C-AD67-890B40E35A63} = {06FD3DEE-6B33-408C-AFE4-6FADE5525AB0}
 		{F489D9D1-F275-4018-A86F-D84352BCD4E9} = {06FD3DEE-6B33-408C-AFE4-6FADE5525AB0}
+		{73C2FD41-C867-4876-BB2F-C5EC90553C49} = {06FD3DEE-6B33-408C-AFE4-6FADE5525AB0}
 	EndGlobalSection
 EndGlobal
