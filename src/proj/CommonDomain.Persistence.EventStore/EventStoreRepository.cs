@@ -37,10 +37,8 @@ namespace CommonDomain.Persistence.EventStore
 			var aggregate = this.factory(stream.Id, stream.Snapshot as IMomento);
 
 			foreach (var @event in stream.Events)
-			{
 				if (CanApplyEvent(aggregate, context))
 					aggregate.ApplyEvent(@event);
-			}
 
 			return aggregate;
 		}
@@ -84,20 +82,16 @@ namespace CommonDomain.Persistence.EventStore
 			}
 			catch (ConcurrencyException e)
 			{
-				this.ResolveConcurrencyConflict(stream, e);
+				if (this.conflictDetector.ConflictsWith(stream.Events, e.CommittedEvents))
+					throw new ConflictingCommandException(ExceptionMessages.ConflictingCommand, e);
+
+				stream.ExpectedVersion += e.CommittedEvents.Count;
+				this.Persist(stream);
 			}
 			catch (DuplicateCommandException e)
 			{
 				this.bus.Publish(e.CommittedEvents);
 			}
-		}
-		private void ResolveConcurrencyConflict(UncommittedEventStream stream, ConcurrencyException exception)
-		{
-			if (this.conflictDetector.ConflictsWith(stream.Events, exception.CommittedEvents))
-				throw new ConflictingCommandException(ExceptionMessages.ConflictingCommand, exception);
-
-			stream.ExpectedVersion += exception.CommittedEvents.Count;
-			this.Persist(stream);
 		}
 	}
 }
