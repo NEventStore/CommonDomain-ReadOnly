@@ -4,7 +4,7 @@ namespace CommonDomain.Core
 	using System.Collections;
 	using System.Collections.Generic;
 
-	public abstract class AggregateBase<TEvent> : IAggregate
+	public abstract class AggregateBase<TEvent> : IAggregate, IEquatable<IAggregate>
 		where TEvent : class
 	{
 		private readonly IDictionary<Type, Action<TEvent>> handlers = new Dictionary<Type, Action<TEvent>>();
@@ -46,5 +46,18 @@ namespace CommonDomain.Core
 			return snapshot;
 		}
 		protected abstract IMomento GetSnapshot();
+
+		public override int GetHashCode()
+		{
+			return this.Id.GetHashCode();
+		}
+		public override bool Equals(object obj)
+		{
+			return this.Equals(obj as IAggregate);
+		}
+		public virtual bool Equals(IAggregate other)
+		{
+			return null != other && other.Id == this.Id;
+		}
 	}
 }
