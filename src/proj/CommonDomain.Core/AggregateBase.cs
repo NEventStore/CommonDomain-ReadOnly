@@ -13,10 +13,10 @@ namespace CommonDomain.Core
 		public Guid Id { get; protected set; }
 		public long Version { get; protected set; }
 
-		protected void Register<TEventType>(Action<TEventType> handler)
-			where TEventType : class, TEvent
+		protected void Register<TRegisteredEvent>(Action<TRegisteredEvent> handler)
+			where TRegisteredEvent : class, TEvent
 		{
-			this.handlers[typeof(TEventType)] = @event => handler(@event as TEventType);
+			this.handlers[typeof(TRegisteredEvent)] = @event => handler(@event as TRegisteredEvent);
 		}
 
 		protected void RaiseEvent(TEvent @event)
@@ -40,11 +40,11 @@ namespace CommonDomain.Core
 
 		IMomento IAggregate.GetSnapshot()
 		{
-			var snapshot = this.TakeSnapshot();
+			var snapshot = this.GetSnapshot();
 			snapshot.Id = this.Id;
 			snapshot.Version = this.Version;
 			return snapshot;
 		}
-		protected abstract IMomento TakeSnapshot();
+		protected abstract IMomento GetSnapshot();
 	}
 }
