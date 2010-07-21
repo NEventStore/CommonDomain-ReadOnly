@@ -45,7 +45,10 @@ namespace CommonDomain.Core
 			snapshot.Version = this.Version;
 			return snapshot;
 		}
-		protected abstract IMomento GetSnapshot();
+		protected virtual IMomento GetSnapshot()
+		{
+			return null;
+		}
 
 		public override int GetHashCode()
 		{
