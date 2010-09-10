@@ -12,6 +12,6 @@ namespace CommonDomain
 		ICollection GetUncommittedEvents();
 		void ClearUncommittedEvents();
 
-		IMomento GetSnapshot();
+		IMemento GetSnapshot();
 	}
 }

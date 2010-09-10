@@ -2,5 +2,5 @@ namespace CommonDomain.Persistence
 {
 	using System;
 
-	public delegate IAggregate AggregateFactory(Guid id, IMomento snapshot);
+	public delegate IAggregate AggregateFactory(Guid id, IMemento snapshot);
 }

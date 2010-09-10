@@ -38,14 +38,14 @@ namespace CommonDomain.Core
 			this.uncommittedEvents.Clear();
 		}
 
-		IMomento IAggregate.GetSnapshot()
+		IMemento IAggregate.GetSnapshot()
 		{
 			var snapshot = this.GetSnapshot();
 			snapshot.Id = this.Id;
 			snapshot.Version = this.Version;
 			return snapshot;
 		}
-		protected virtual IMomento GetSnapshot()
+		protected virtual IMemento GetSnapshot()
 		{
 			return null;
 		}

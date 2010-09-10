@@ -44,7 +44,7 @@
     </Compile>
     <Compile Include="IAggregate.cs" />
     <Compile Include="IDetectConflicts.cs" />
-    <Compile Include="IMomento.cs" />
+    <Compile Include="IMemento.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
