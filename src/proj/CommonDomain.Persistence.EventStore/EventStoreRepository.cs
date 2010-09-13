@@ -34,7 +34,7 @@ namespace CommonDomain.Persistence.EventStore
 		}
 		private IAggregate BuildAggregate(CommittedEventStream stream, CommandContext context)
 		{
-			var aggregate = this.factory(stream.Id, stream.Snapshot as IMemento);
+			var aggregate = this.factory(stream.Type, stream.Id, stream.Snapshot as IMemento);
 
 			foreach (var @event in stream.Events)
 				if (CanApplyEvent(aggregate, context))

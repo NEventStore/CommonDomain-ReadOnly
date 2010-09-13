@@ -52,12 +52,13 @@
             Represents a stream of events which has been committed to persistent storage.
             </summary>
     </member>
-    <member name="M:EventStore.CommittedEventStream.#ctor(System.Guid,System.Int64,System.Collections.ICollection,System.Object)">
+    <member name="M:EventStore.CommittedEventStream.#ctor(System.Guid,System.Int64,System.Type,System.Collections.ICollection,System.Object)">
       <summary>
             Initializes a new instance of the CommittedEventStream class.
             </summary>
       <param name="id">The value which uniquely identifies the aggregate to which the event stream belongs.</param>
       <param name="version">The version of the aggregate</param>
+      <param name="type">The type of aggregate to which the event stream belongs.</param>
       <param name="events">The collection of committed events</param>
       <param name="snapshot">The most recent snapshot of the aggregate, if any.</param>
     </member>
@@ -69,6 +70,11 @@
     <member name="P:EventStore.CommittedEventStream.Version">
       <summary>
             Gets the committed version of the aggregate.
+            </summary>
+    </member>
+    <member name="P:EventStore.CommittedEventStream.Type">
+      <summary>
+            Gets the type of aggregate to which the event stream belongs.
             </summary>
     </member>
     <member name="P:EventStore.CommittedEventStream.Events">
