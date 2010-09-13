@@ -30,17 +30,19 @@ namespace CommonDomain.Persistence.EventStore
 		{
 			var context = this.commandContext.GetCurrent();
 			var stream = this.eventStore.Read(id, context.Version);
-			return this.BuildAggregate(stream, context) as TAggregate;
+			return this.BuildAggregate<TAggregate>(stream, context);
 		}
-		private IAggregate BuildAggregate(CommittedEventStream stream, CommandContext context)
+		private TAggregate BuildAggregate<TAggregate>(
+			CommittedEventStream stream, CommandContext context)
+			where TAggregate : class, IAggregate
 		{
-			var aggregate = this.factory(stream.Type, stream.Id, stream.Snapshot as IMemento);
+			var aggregate = this.factory(typeof(TAggregate), stream.Id, stream.Snapshot as IMemento);
 
 			foreach (var @event in stream.Events)
 				if (CanApplyEvent(aggregate, context))
 					aggregate.ApplyEvent(@event);
 
-			return aggregate;
+			return aggregate as TAggregate;
 		}
 		private static bool CanApplyEvent(IAggregate aggregate, CommandContext current)
 		{
