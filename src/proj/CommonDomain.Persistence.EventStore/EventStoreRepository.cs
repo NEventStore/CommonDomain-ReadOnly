@@ -5,65 +5,67 @@ namespace CommonDomain.Persistence.EventStore
 
 	public class EventStoreRepository : IRepository
 	{
-		private readonly IScopeCommandContext commandContext;
 		private readonly IStoreEvents eventStore;
 		private readonly AggregateFactory factory;
 		private readonly IPublishCommittedEvents bus;
 		private readonly IDetectConflicts conflictDetector;
 
 		public EventStoreRepository(
-			IScopeCommandContext commandContext,
 			IStoreEvents eventStore,
 			AggregateFactory factory,
 			IPublishCommittedEvents bus,
 			IDetectConflicts conflictDetector)
 		{
-			this.commandContext = commandContext;
 			this.conflictDetector = conflictDetector;
 			this.bus = bus;
 			this.eventStore = eventStore;
 			this.factory = factory;
 		}
 
-		public TAggregate GetById<TAggregate>(Guid id)
-			where TAggregate : class, IAggregate
+		public TAggregate GetById<TAggregate>(Guid id) where TAggregate : class, IAggregate
 		{
-			var context = this.commandContext.GetCurrent();
-			var stream = this.eventStore.Read(id, context.Version);
-			return this.BuildAggregate<TAggregate>(stream, context);
+			return this.GetById<TAggregate>(id, 0);
 		}
-		private TAggregate BuildAggregate<TAggregate>(
-			CommittedEventStream stream, CommandContext context)
+		public TAggregate GetById<TAggregate>(Guid id, long version) where TAggregate : class, IAggregate
+		{
+			var stream = this.eventStore.Read(id, version);
+			return this.BuildAggregate<TAggregate>(stream, version);
+		}
+		private TAggregate BuildAggregate<TAggregate>(CommittedEventStream stream, long version)
 			where TAggregate : class, IAggregate
 		{
 			var aggregate = this.factory(typeof(TAggregate), stream.Id, stream.Snapshot as IMemento);
 
 			foreach (var @event in stream.Events)
-				if (CanApplyEvent(aggregate, context))
+				if (CanApplyEvent(aggregate, version))
 					aggregate.ApplyEvent(@event);
 
 			return aggregate as TAggregate;
 		}
-		private static bool CanApplyEvent(IAggregate aggregate, CommandContext current)
+		private static bool CanApplyEvent(IAggregate aggregate, long version)
 		{
-			return current.Version == 0 || aggregate.Version < current.Version;
+			return version == 0 || aggregate.Version < version;
 		}
 
 		public void Save(IAggregate aggregate)
 		{
-			var stream = this.BuildStream(aggregate);
+			this.Save(aggregate, null, Guid.Empty);
+		}
+		public void Save(IAggregate aggregate, object command, Guid commandId)
+		{
+			var stream = BuildStream(aggregate, command, commandId);
 			if (stream.Events.Count == 0)
 				throw new NotSupportedException(ExceptionMessages.NoWork);
 
 			this.Persist(stream);
 			aggregate.ClearUncommittedEvents();
 		}
-		private UncommittedEventStream BuildStream(IAggregate aggregate)
+		private static UncommittedEventStream BuildStream(IAggregate aggregate, object command, Guid commandId)
 		{
 			if (aggregate == null)
-				throw new ArgumentNullException(ExceptionMessages.AggregateArgument, ExceptionMessages.NullArgument);
+				throw new ArgumentNullException(
+					ExceptionMessages.AggregateArgument, ExceptionMessages.NullArgument);
 
-			var context = this.commandContext.GetCurrent();
 			var events = aggregate.GetUncommittedEvents();
 
 			return new UncommittedEventStream
@@ -71,8 +73,8 @@ namespace CommonDomain.Persistence.EventStore
 				Id = aggregate.Id,
 				Type = aggregate.GetType(),
 				ExpectedVersion = aggregate.Version - events.Count,
-				CommandId = context.Id,
-				Command = context.Message,
+				CommandId = commandId,
+				Command = command,
 				Events = events
 			};
 		}
