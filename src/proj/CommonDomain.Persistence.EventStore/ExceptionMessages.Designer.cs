@@ -95,5 +95,14 @@ namespace CommonDomain.Persistence.EventStore {
                 return ResourceManager.GetString("NullArgument", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to saga.
+        /// </summary>
+        internal static string SagaArgument {
+            get {
+                return ResourceManager.GetString("SagaArgument", resourceCulture);
+            }
+        }
     }
 }

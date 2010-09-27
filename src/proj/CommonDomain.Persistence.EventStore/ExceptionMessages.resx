@@ -123,10 +123,13 @@
   <data name="NoWork" xml:space="preserve">
     <value>There were no uncommitted changes to persist.  When attempting to save an aggregate there must be at least one uncommitted event to persist.</value>
   </data>
-	<data name="AggregateArgument">
-		<value xml:space="preserve">aggregate</value>
-	</data>
-	<data name="NullArgument">
-		<value xml:space="preserve">The argument cannot be null.</value>
-	</data>
+  <data name="AggregateArgument" xml:space="preserve">
+    <value>aggregate</value>
+  </data>
+  <data name="NullArgument" xml:space="preserve">
+    <value>The argument cannot be null.</value>
+  </data>
+  <data name="SagaArgument" xml:space="preserve">
+    <value>saga</value>
+  </data>
 </root>

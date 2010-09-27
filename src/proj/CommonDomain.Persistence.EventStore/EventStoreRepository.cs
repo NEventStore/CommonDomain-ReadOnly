@@ -1,23 +1,24 @@
 namespace CommonDomain.Persistence.EventStore
 {
 	using System;
+	using System.Collections;
 	using global::EventStore;
 
 	public class EventStoreRepository : IRepository
 	{
 		private readonly IStoreEvents eventStore;
 		private readonly AggregateFactory factory;
-		private readonly IPublishCommittedEvents bus;
+		private readonly Action<ICollection> publisher;
 		private readonly IDetectConflicts conflictDetector;
 
 		public EventStoreRepository(
 			IStoreEvents eventStore,
 			AggregateFactory factory,
-			IPublishCommittedEvents bus,
+			Action<ICollection> publisher,
 			IDetectConflicts conflictDetector)
 		{
 			this.conflictDetector = conflictDetector;
-			this.bus = bus;
+			this.publisher = publisher;
 			this.eventStore = eventStore;
 			this.factory = factory;
 		}
@@ -83,7 +84,7 @@ namespace CommonDomain.Persistence.EventStore
 			try
 			{
 				this.eventStore.Write(stream);
-				this.bus.Publish(stream.Events);
+				this.publisher(stream.Events);
 			}
 			catch (StorageEngineException e)
 			{
@@ -99,7 +100,7 @@ namespace CommonDomain.Persistence.EventStore
 			}
 			catch (DuplicateCommandException e)
 			{
-				this.bus.Publish(e.CommittedEvents);
+				this.publisher(e.CommittedEvents);
 			}
 		}
 	}

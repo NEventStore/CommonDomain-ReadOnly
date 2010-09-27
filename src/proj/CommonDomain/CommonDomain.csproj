@@ -49,6 +49,7 @@
     <Compile Include="IAggregate.cs" />
     <Compile Include="IDetectConflicts.cs" />
     <Compile Include="IMemento.cs" />
+    <Compile Include="ISaga.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
