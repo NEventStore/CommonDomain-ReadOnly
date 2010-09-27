@@ -13,7 +13,6 @@ SET FILES_TO_MERGE=
 SET FILES_TO_MERGE=%FILES_TO_MERGE% "src/proj/CommonDomain/bin/Release/CommonDomain.dll"
 SET FILES_TO_MERGE=%FILES_TO_MERGE% "src/proj/CommonDomain.Core/bin/Release/CommonDomain.Core.dll"
 SET FILES_TO_MERGE=%FILES_TO_MERGE% "src/proj/CommonDomain.Persistence/bin/Release/CommonDomain.Persistence.dll"
-SET FILES_TO_MERGE=%FILES_TO_MERGE% "src/proj/CommonDomain.Persistence.Core/bin/Release/CommonDomain.Persistence.Core.dll"
 SET FILES_TO_MERGE=%FILES_TO_MERGE% "src/proj/CommonDomain.Persistence.EventStore/bin/Release/CommonDomain.Persistence.EventStore.dll"
 SET FILES_TO_MERGE=%FILES_TO_MERGE% "src/proj/CommonDomain.Persistence.EventStore/bin/Release/EventStore.dll"
 
