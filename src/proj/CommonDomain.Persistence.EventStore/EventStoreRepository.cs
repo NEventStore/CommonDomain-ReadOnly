@@ -1,20 +1,19 @@
 namespace CommonDomain.Persistence.EventStore
 {
 	using System;
-	using System.Collections;
 	using global::EventStore;
 
 	public class EventStoreRepository : IRepository
 	{
 		private readonly IStoreEvents eventStore;
-		private readonly AggregateFactory factory;
-		private readonly Action<ICollection> publisher;
+		private readonly IConstructAggregates factory;
+		private readonly IPublishCommittedEvents publisher;
 		private readonly IDetectConflicts conflictDetector;
 
 		public EventStoreRepository(
 			IStoreEvents eventStore,
-			AggregateFactory factory,
-			Action<ICollection> publisher,
+			IConstructAggregates factory,
+			IPublishCommittedEvents publisher,
 			IDetectConflicts conflictDetector)
 		{
 			this.conflictDetector = conflictDetector;
@@ -35,15 +34,15 @@ namespace CommonDomain.Persistence.EventStore
 		private TAggregate BuildAggregate<TAggregate>(CommittedEventStream stream, long version)
 			where TAggregate : class, IAggregate
 		{
-			var aggregate = this.factory(typeof(TAggregate), stream.Id, stream.Snapshot as IMemento);
+			var aggregate = this.factory.Build(typeof(TAggregate), stream.Id, stream.Snapshot as IMemento);
 
-			foreach (var @event in stream.Events)
-				if (CanApplyEvent(aggregate, version))
+			if (CanApplyEvents(aggregate, version))
+				foreach (var @event in stream.Events)
 					aggregate.ApplyEvent(@event);
 
 			return aggregate as TAggregate;
 		}
-		private static bool CanApplyEvent(IAggregate aggregate, long version)
+		private static bool CanApplyEvents(IAggregate aggregate, long version)
 		{
 			return version == 0 || aggregate.Version < version;
 		}
@@ -56,9 +55,9 @@ namespace CommonDomain.Persistence.EventStore
 		{
 			var stream = BuildStream(aggregate, command, commandId);
 			if (stream.Events.Count == 0)
-				throw new NotSupportedException(ExceptionMessages.NoWork);
+				return;
 
-			this.Persist(stream);
+			this.Persist(stream, stream.CommittedVersion + stream.Events.Count + 1);
 			aggregate.ClearUncommittedEvents();
 		}
 		private static UncommittedEventStream BuildStream(IAggregate aggregate, object command, Guid commandId)
@@ -79,12 +78,12 @@ namespace CommonDomain.Persistence.EventStore
 				Events = events
 			};
 		}
-		private void Persist(UncommittedEventStream stream)
+		private void Persist(UncommittedEventStream stream, long startingVersion)
 		{
 			try
 			{
 				this.eventStore.Write(stream);
-				this.publisher(stream.Events);
+				this.publisher.Publish(stream.Events, startingVersion);
 			}
 			catch (StorageEngineException e)
 			{
@@ -100,11 +99,12 @@ namespace CommonDomain.Persistence.EventStore
 					throw new ConflictingCommandException(ExceptionMessages.ConflictingCommand, e);
 
 				stream.CommittedVersion += e.CommittedEvents.Count;
-				this.Persist(stream);
+				startingVersion += e.CommittedEvents.Count;
+				this.Persist(stream, startingVersion);
 			}
 			catch (DuplicateCommandException e)
 			{
-				this.publisher(e.CommittedEvents);
+				this.publisher.Publish(e.CommittedEvents);
 			}
 		}
 	}

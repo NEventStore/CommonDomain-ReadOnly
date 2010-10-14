@@ -46,6 +46,7 @@
     <Compile Include="..\VersionAssemblyInfo.cs">
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="BusAdapter.cs" />
     <Compile Include="EventStoreRepository.cs">
       <SubType>Code</SubType>
     </Compile>

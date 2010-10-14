@@ -46,8 +46,9 @@
     <Compile Include="..\VersionAssemblyInfo.cs">
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="AggregateFactory.cs" />
     <Compile Include="ConflictingCommandException.cs" />
+    <Compile Include="IConstructAggregates.cs" />
+    <Compile Include="IPublishCommittedEvents.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="ISagaRepository.cs" />
     <Compile Include="PersistenceException.cs" />
