@@ -73,7 +73,7 @@ namespace CommonDomain.Persistence.EventStore
 			{
 				Id = aggregate.Id,
 				Type = aggregate.GetType(),
-				ExpectedVersion = aggregate.Version - events.Count,
+				CommittedVersion = aggregate.Version - events.Count,
 				CommandId = commandId,
 				Command = command,
 				Events = events
@@ -90,12 +90,16 @@ namespace CommonDomain.Persistence.EventStore
 			{
 				throw new PersistenceException(e.Message, e);
 			}
+			catch (StorageConstraintViolationException e)
+			{
+				throw new PersistenceException(e.Message, e);
+			}
 			catch (ConcurrencyException e)
 			{
 				if (this.conflictDetector.ConflictsWith(stream.Events, e.CommittedEvents))
 					throw new ConflictingCommandException(ExceptionMessages.ConflictingCommand, e);
 
-				stream.ExpectedVersion += e.CommittedEvents.Count;
+				stream.CommittedVersion += e.CommittedEvents.Count;
 				this.Persist(stream);
 			}
 			catch (DuplicateCommandException e)

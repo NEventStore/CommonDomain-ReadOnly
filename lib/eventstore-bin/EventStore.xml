@@ -81,6 +81,36 @@
             Gets the most recent snapshot of the aggregate, if any.
             </summary>
     </member>
+    <member name="T:EventStore.StorageConstraintViolationException">
+      <summary>
+            Represents a violation of one more storage engine persistence constraints.
+            </summary>
+    </member>
+    <member name="M:EventStore.StorageConstraintViolationException.#ctor">
+      <summary>
+            Initializes a new instance of the StorageConstraintViolationException class.
+            </summary>
+    </member>
+    <member name="M:EventStore.StorageConstraintViolationException.#ctor(System.String)">
+      <summary>
+            Initializes a new instance of the StorageConstraintViolationException class.
+            </summary>
+      <param name="message">The message that describes the error.</param>
+    </member>
+    <member name="M:EventStore.StorageConstraintViolationException.#ctor(System.String,System.Exception)">
+      <summary>
+            Initializes a new instance of the StorageConstraintViolationException class.
+            </summary>
+      <param name="message">The message that describes the error.</param>
+      <param name="innerException">The message that is the cause of the current exception.</param>
+    </member>
+    <member name="M:EventStore.StorageConstraintViolationException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Initializes a new instance of the StorageConstraintViolationException class.
+            </summary>
+      <param name="info">The SerializationInfo that holds the serialized object data of the exception being thrown.</param>
+      <param name="context">The StreamingContext that contains contextual information about the source or destination.</param>
+    </member>
     <member name="T:EventStore.DuplicateCommandException">
       <summary>
             Represents an attempt to commit events resulting from the same command more than once.
@@ -188,14 +218,14 @@
             Gets or sets the type of aggregate to which the event stream belongs.
             </summary>
     </member>
-    <member name="P:EventStore.UncommittedEventStream.ExpectedVersion">
+    <member name="P:EventStore.UncommittedEventStream.CommittedVersion">
       <summary>
             Gets or sets the version of the stream of events when it was originally loaded.
             </summary>
     </member>
     <member name="P:EventStore.UncommittedEventStream.CommandId">
       <summary>
-            Gets or sets the optional value which uniquely identifies the command identifier for the events being persisted.
+            Gets or sets the optional value which uniquely identifies the command for the events being persisted.
             </summary>
     </member>
     <member name="P:EventStore.UncommittedEventStream.Command">
@@ -243,19 +273,19 @@
       <param name="info">The SerializationInfo that holds the serialized object data of the exception being thrown.</param>
       <param name="context">The StreamingContext that contains contextual information about the source or destination.</param>
     </member>
-    <member name="T:EventStore.ISerialize">
+    <member name="T:EventStore.ISerializeObjects">
       <summary>
             Provides the ability to serialize and deserialize an object graph.
             </summary>
     </member>
-    <member name="M:EventStore.ISerialize.Serialize(System.Object)">
+    <member name="M:EventStore.ISerializeObjects.Serialize(System.Object)">
       <summary>
             Serializes the object graph provided.
             </summary>
       <param name="graph">The object graph to be serialized.</param>
       <returns>The serialized or byte representation of the serialized object.</returns>
     </member>
-    <member name="M:EventStore.ISerialize.Deserialize``1(System.Byte[])">
+    <member name="M:EventStore.ISerializeObjects.Deserialize``1(System.Byte[])">
       <summary>
             Deserializes the bytes provided.
             </summary>
@@ -263,12 +293,12 @@
       <param name="input">The bytes from which the object will be reconstructed.</param>
       <returns>The reconstructed object.</returns>
     </member>
-    <member name="T:EventStore.IAdaptStorage">
+    <member name="T:EventStore.IStorageEngine">
       <summary>
             Adapts the underlying persistence infrastructure to facilitate event sourcing.
             </summary>
     </member>
-    <member name="M:EventStore.IAdaptStorage.LoadById(System.Guid,System.Int64)">
+    <member name="M:EventStore.IStorageEngine.LoadById(System.Guid,System.Int64)">
       <summary>
             Reads all events for the specified aggregate.
             </summary>
@@ -277,7 +307,7 @@
       <returns>A stream of committed events for the specified aggregate.</returns>
       <exception cref="T:EventStore.StorageEngineException" />
     </member>
-    <member name="M:EventStore.IAdaptStorage.LoadByCommandId(System.Guid)">
+    <member name="M:EventStore.IStorageEngine.LoadByCommandId(System.Guid)">
       <summary>
             Reads all events associated with the specified command identifier.
             </summary>
@@ -285,7 +315,7 @@
       <returns>A collection of committed events for the specified command identifier.</returns>
       <exception cref="T:EventStore.StorageEngineException" />
     </member>
-    <member name="M:EventStore.IAdaptStorage.LoadStartingAfter(System.Guid,System.Int64)">
+    <member name="M:EventStore.IStorageEngine.LoadStartingAfter(System.Guid,System.Int64)">
       <summary>
             Reads all events for the specified aggregate starting after the indicated version.
             </summary>
@@ -294,7 +324,7 @@
       <returns>A collection of committed events for the specified aggregate.</returns>
       <exception cref="T:EventStore.StorageEngineException" />
     </member>
-    <member name="M:EventStore.IAdaptStorage.Save(EventStore.UncommittedEventStream)">
+    <member name="M:EventStore.IStorageEngine.Save(EventStore.UncommittedEventStream)">
       <summary>
             Writes the stream of uncommitted events to persistent storage.
             </summary>

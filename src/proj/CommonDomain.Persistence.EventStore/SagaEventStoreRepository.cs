@@ -49,7 +49,7 @@ namespace CommonDomain.Persistence.EventStore
 			{
 				Id = saga.Id,
 				Type = saga.GetType(),
-				ExpectedVersion = saga.Version - events.Count,
+				CommittedVersion = saga.Version - events.Count,
 				Events = events
 			};
 		}
