@@ -33,14 +33,14 @@ namespace CommonDomain.Core
 
 		private bool Conflicts(object uncommitted, object committed)
 		{
-			// default to no conflicts if no registration is found
+			// if no registration is found, no comparison can be done and the events should conflict
 			IDictionary<Type, Func<object, object, bool>> registration = null;
 			if (!this.actions.TryGetValue(uncommitted.GetType(), out registration))
-				return false;
+				return true;
 
 			Func<object, object, bool> callback = null;
 			if (!registration.TryGetValue(committed.GetType(), out callback))
-				return false;
+				return true;
 
 			return callback(uncommitted, committed);
 		}
