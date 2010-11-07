@@ -51,6 +51,7 @@
     <Compile Include="IPublishCommittedEvents.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="ISagaRepository.cs" />
+    <Compile Include="IStampAggregateVersion.cs" />
     <Compile Include="PersistenceException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
