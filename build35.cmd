@@ -2,7 +2,8 @@
 SET FRAMEWORK_PATH=C:\WINDOWS\Microsoft.NET\Framework\v4.0.30319
 SET PATH=%PATH%;%FRAMEWORK_PATH%;
 
-if not exist output ( mkdir output )
+if exist output ( rmdir /s /q output )
+mkdir output
 
 echo Compiling
 msbuild /nologo /verbosity:quiet src/CommonDomain.sln /p:Configuration=Release /t:Clean

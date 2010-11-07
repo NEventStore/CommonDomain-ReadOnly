@@ -1,0 +1,337 @@
+<?xml version="1.0"?>
+<doc>
+  <assembly>
+    <name>EventStore</name>
+  </assembly>
+  <members>
+    <member name="T:EventStore.ConcurrencyException">
+      <summary>
+            Represents an optimistic concurrency conflict between multiple writers.
+            </summary>
+    </member>
+    <member name="M:EventStore.ConcurrencyException.#ctor">
+      <summary>
+            Initializes a new instance of the ConcurrencyException class.
+            </summary>
+    </member>
+    <member name="M:EventStore.ConcurrencyException.#ctor(System.String)">
+      <summary>
+            Initializes a new instance of the ConcurrencyException class.
+            </summary>
+      <param name="message">The message that describes the error.</param>
+    </member>
+    <member name="M:EventStore.ConcurrencyException.#ctor(System.String,System.Exception)">
+      <summary>
+            Initializes a new instance of the ConcurrencyException class.
+            </summary>
+      <param name="message">The message that describes the error.</param>
+      <param name="innerException">The message that is the cause of the current exception.</param>
+    </member>
+    <member name="M:EventStore.ConcurrencyException.#ctor(System.String,System.Exception,System.Collections.ICollection)">
+      <summary>
+            Initializes a new instance of the ConcurrencyException class.
+            </summary>
+      <param name="message">The message that describes the error.</param>
+      <param name="innerException">The message that is the cause of the current exception.</param>
+      <param name="committedEvents">The events committed by another session which caused this exception exception.</param>
+    </member>
+    <member name="M:EventStore.ConcurrencyException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Initializes a new instance of the ConcurrencyException class.
+            </summary>
+      <param name="info">The SerializationInfo that holds the serialized object data of the exception being thrown.</param>
+      <param name="context">The StreamingContext that contains contextual information about the source or destination.</param>
+    </member>
+    <member name="P:EventStore.ConcurrencyException.CommittedEvents">
+      <summary>
+            Gets the collection of events committed by another session which caused this exception to be thrown.
+            </summary>
+    </member>
+    <member name="T:EventStore.CommittedEventStream">
+      <summary>
+            Represents a stream of events which has been committed to persistent storage.
+            </summary>
+    </member>
+    <member name="M:EventStore.CommittedEventStream.#ctor(System.Guid,System.Int64,System.Collections.ICollection,System.Object)">
+      <summary>
+            Initializes a new instance of the CommittedEventStream class.
+            </summary>
+      <param name="id">The value which uniquely identifies the aggregate to which the event stream belongs.</param>
+      <param name="version">The version of the aggregate</param>
+      <param name="events">The collection of committed events</param>
+      <param name="snapshot">The most recent snapshot of the aggregate, if any.</param>
+    </member>
+    <member name="P:EventStore.CommittedEventStream.Id">
+      <summary>
+            Gets the value which uniquely identifies the aggregate to which the event stream belongs.
+            </summary>
+    </member>
+    <member name="P:EventStore.CommittedEventStream.Version">
+      <summary>
+            Gets the committed version of the aggregate.
+            </summary>
+    </member>
+    <member name="P:EventStore.CommittedEventStream.Events">
+      <summary>
+            Gets the collection of committed events.
+            </summary>
+    </member>
+    <member name="P:EventStore.CommittedEventStream.Snapshot">
+      <summary>
+            Gets the most recent snapshot of the aggregate, if any.
+            </summary>
+    </member>
+    <member name="T:EventStore.StorageConstraintViolationException">
+      <summary>
+            Represents a violation of one more storage engine persistence constraints.
+            </summary>
+    </member>
+    <member name="M:EventStore.StorageConstraintViolationException.#ctor">
+      <summary>
+            Initializes a new instance of the StorageConstraintViolationException class.
+            </summary>
+    </member>
+    <member name="M:EventStore.StorageConstraintViolationException.#ctor(System.String)">
+      <summary>
+            Initializes a new instance of the StorageConstraintViolationException class.
+            </summary>
+      <param name="message">The message that describes the error.</param>
+    </member>
+    <member name="M:EventStore.StorageConstraintViolationException.#ctor(System.String,System.Exception)">
+      <summary>
+            Initializes a new instance of the StorageConstraintViolationException class.
+            </summary>
+      <param name="message">The message that describes the error.</param>
+      <param name="innerException">The message that is the cause of the current exception.</param>
+    </member>
+    <member name="M:EventStore.StorageConstraintViolationException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Initializes a new instance of the StorageConstraintViolationException class.
+            </summary>
+      <param name="info">The SerializationInfo that holds the serialized object data of the exception being thrown.</param>
+      <param name="context">The StreamingContext that contains contextual information about the source or destination.</param>
+    </member>
+    <member name="T:EventStore.DuplicateCommandException">
+      <summary>
+            Represents an attempt to commit events resulting from the same command more than once.
+            </summary>
+    </member>
+    <member name="M:EventStore.DuplicateCommandException.#ctor">
+      <summary>
+            Initializes a new instance of the DuplicateCommandException class.
+            </summary>
+    </member>
+    <member name="M:EventStore.DuplicateCommandException.#ctor(System.String)">
+      <summary>
+            Initializes a new instance of the DuplicateCommandException class.
+            </summary>
+      <param name="message">The message that describes the error.</param>
+    </member>
+    <member name="M:EventStore.DuplicateCommandException.#ctor(System.String,System.Exception)">
+      <summary>
+            Initializes a new instance of the DuplicateCommandException class.
+            </summary>
+      <param name="message">The message that describes the error.</param>
+      <param name="innerException">The message that is the cause of the current exception.</param>
+    </member>
+    <member name="M:EventStore.DuplicateCommandException.#ctor(System.String,System.Exception,System.Collections.ICollection)">
+      <summary>
+            Initializes a new instance of the DuplicateCommandException class.
+            </summary>
+      <param name="message">The message that describes the error.</param>
+      <param name="innerException">The message that is the cause of the current exception.</param>
+      <param name="committedEvents">The collection of events previously committed by handled the associated command.</param>
+    </member>
+    <member name="M:EventStore.DuplicateCommandException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Initializes a new instance of the DuplicateCommandException class.
+            </summary>
+      <param name="info">The SerializationInfo that holds the serialized object data of the exception being thrown.</param>
+      <param name="context">The StreamingContext that contains contextual information about the source or destination.</param>
+    </member>
+    <member name="P:EventStore.DuplicateCommandException.CommittedEvents">
+      <summary>
+            Gets the collection of events previously committed by the associated command.
+            </summary>
+    </member>
+    <member name="T:EventStore.DuplicateKeyException">
+      <summary>
+            Represents a failed attempt to insert a duplicate key into the storage engine.
+            </summary>
+    </member>
+    <member name="M:EventStore.DuplicateKeyException.#ctor">
+      <summary>
+            Initializes a new instance of the DuplicateKeyException class.
+            </summary>
+    </member>
+    <member name="M:EventStore.DuplicateKeyException.#ctor(System.String)">
+      <summary>
+            Initializes a new instance of the DuplicateKeyException class.
+            </summary>
+      <param name="message">The message that describes the error.</param>
+    </member>
+    <member name="M:EventStore.DuplicateKeyException.#ctor(System.String,System.Exception)">
+      <summary>
+            Initializes a new instance of the DuplicateKeyException class.
+            </summary>
+      <param name="message">The message that describes the error.</param>
+      <param name="innerException">The message that is the cause of the current exception.</param>
+    </member>
+    <member name="M:EventStore.DuplicateKeyException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Initializes a new instance of the DuplicateKeyException class.
+            </summary>
+      <param name="info">The SerializationInfo that holds the serialized object data of the exception being thrown.</param>
+      <param name="context">The StreamingContext that contains contextual information about the source or destination.</param>
+    </member>
+    <member name="T:EventStore.IStoreEvents">
+      <summary>
+            Represents the mechanism used to read from and write to persistent event storage.
+            </summary>
+    </member>
+    <member name="M:EventStore.IStoreEvents.Read(System.Guid,System.Int64)">
+      <summary>
+            Reads all events for the specified aggregate.
+            </summary>
+      <param name="id">The value which uniquely identifies the aggregate of the events to be loaded.</param>
+      <param name="maxStartingVersion">The maximum version at which to start reading the aggregate event stream.</param>
+      <returns>A stream of committed events for the specified aggregate.</returns>
+    </member>
+    <member name="M:EventStore.IStoreEvents.Write(EventStore.UncommittedEventStream)">
+      <summary>
+            Writes the stream of uncommitted events to persistent storage.
+            </summary>
+      <param name="stream">The stream of uncomitted events to be persisted.</param>
+    </member>
+    <member name="T:EventStore.UncommittedEventStream">
+      <summary>
+            Represents a stream of events which has not yet been committed to persistent storage.
+            </summary>
+    </member>
+    <member name="P:EventStore.UncommittedEventStream.Id">
+      <summary>
+            Gets or sets the value which uniquely identifies the aggregate to which the event stream belongs.
+            </summary>
+    </member>
+    <member name="P:EventStore.UncommittedEventStream.Type">
+      <summary>
+            Gets or sets the type of aggregate to which the event stream belongs.
+            </summary>
+    </member>
+    <member name="P:EventStore.UncommittedEventStream.CommittedVersion">
+      <summary>
+            Gets or sets the version of the stream of events when it was originally loaded.
+            </summary>
+    </member>
+    <member name="P:EventStore.UncommittedEventStream.CommandId">
+      <summary>
+            Gets or sets the optional value which uniquely identifies the command for the events being persisted.
+            </summary>
+    </member>
+    <member name="P:EventStore.UncommittedEventStream.Command">
+      <summary>
+            Gets or sets the optional object which caused the uncommitted events, such as a command message.
+            </summary>
+    </member>
+    <member name="P:EventStore.UncommittedEventStream.Events">
+      <summary>
+            Gets or sets the collection of events to be persisted.
+            </summary>
+    </member>
+    <member name="P:EventStore.UncommittedEventStream.Snapshot">
+      <summary>
+            Gets or sets the optional snapshot of the aggregate.
+            </summary>
+    </member>
+    <member name="T:EventStore.StorageEngineException">
+      <summary>
+            Represents a general failure of the storage engine.
+            </summary>
+    </member>
+    <member name="M:EventStore.StorageEngineException.#ctor">
+      <summary>
+            Initializes a new instance of the StorageEngineException class.
+            </summary>
+    </member>
+    <member name="M:EventStore.StorageEngineException.#ctor(System.String)">
+      <summary>
+            Initializes a new instance of the StorageEngineException class.
+            </summary>
+      <param name="message">The message that describes the error.</param>
+    </member>
+    <member name="M:EventStore.StorageEngineException.#ctor(System.String,System.Exception)">
+      <summary>
+            Initializes a new instance of the StorageEngineException class.
+            </summary>
+      <param name="message">The message that describes the error.</param>
+      <param name="innerException">The message that is the cause of the current exception.</param>
+    </member>
+    <member name="M:EventStore.StorageEngineException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Initializes a new instance of the StorageEngineException class.
+            </summary>
+      <param name="info">The SerializationInfo that holds the serialized object data of the exception being thrown.</param>
+      <param name="context">The StreamingContext that contains contextual information about the source or destination.</param>
+    </member>
+    <member name="T:EventStore.ISerializeObjects">
+      <summary>
+            Provides the ability to serialize and deserialize an object graph.
+            </summary>
+    </member>
+    <member name="M:EventStore.ISerializeObjects.Serialize(System.Object)">
+      <summary>
+            Serializes the object graph provided.
+            </summary>
+      <param name="graph">The object graph to be serialized.</param>
+      <returns>The serialized or byte representation of the serialized object.</returns>
+    </member>
+    <member name="M:EventStore.ISerializeObjects.Deserialize``1(System.Byte[])">
+      <summary>
+            Deserializes the bytes provided.
+            </summary>
+      <typeparam name="T">The type of object to reconstruct.</typeparam>
+      <param name="input">The bytes from which the object will be reconstructed.</param>
+      <returns>The reconstructed object.</returns>
+    </member>
+    <member name="T:EventStore.IStorageEngine">
+      <summary>
+            Adapts the underlying persistence infrastructure to facilitate event sourcing.
+            </summary>
+    </member>
+    <member name="M:EventStore.IStorageEngine.LoadById(System.Guid,System.Int64)">
+      <summary>
+            Reads all events for the specified aggregate.
+            </summary>
+      <param name="id">The value which uniquely identifies the aggregate of the events to be loaded.</param>
+      <param name="maxStartingVersion">The maxium version at which to start reading the aggregate event stream.</param>
+      <returns>A stream of committed events for the specified aggregate.</returns>
+      <exception cref="T:EventStore.StorageEngineException" />
+    </member>
+    <member name="M:EventStore.IStorageEngine.LoadByCommandId(System.Guid)">
+      <summary>
+            Reads all events associated with the specified command identifier.
+            </summary>
+      <param name="commandId">The value which uniquely identifies the set of events to be loaded.</param>
+      <returns>A collection of committed events for the specified command identifier.</returns>
+      <exception cref="T:EventStore.StorageEngineException" />
+    </member>
+    <member name="M:EventStore.IStorageEngine.LoadStartingAfter(System.Guid,System.Int64)">
+      <summary>
+            Reads all events for the specified aggregate starting after the indicated version.
+            </summary>
+      <param name="id">The value which uniquely identifies the aggregate of the events to be loaded.</param>
+      <param name="version">The version after which the loaded event collection should begin.</param>
+      <returns>A collection of committed events for the specified aggregate.</returns>
+      <exception cref="T:EventStore.StorageEngineException" />
+    </member>
+    <member name="M:EventStore.IStorageEngine.Save(EventStore.UncommittedEventStream)">
+      <summary>
+            Writes the stream of uncommitted events to persistent storage.
+            </summary>
+      <param name="stream">The stream of uncomitted events to be persisted.</param>
+      <exception cref="T:EventStore.ConcurrencyException" />
+      <exception cref="T:EventStore.DuplicateCommandException" />
+      <exception cref="T:EventStore.StorageEngineException" />
+    </member>
+  </members>
+</doc>

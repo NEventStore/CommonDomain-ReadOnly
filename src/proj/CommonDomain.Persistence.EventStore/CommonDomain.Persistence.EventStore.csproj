@@ -71,11 +71,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="EventStore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=7735eb81c0bd9948, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\lib\eventstore-bin\EventStore.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
+    <Reference Include="EventStore">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+      <HintPath>..\..\..\lib\eventstore-bin\.NET 3.5\EventStore.dll</HintPath>
+    </Reference>
+    <Reference Include="EventStore" Condition="$(TargetFrameworkVersion)=='v4.0'">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+      <HintPath>..\..\..\lib\eventstore-bin\.NET 4.0\EventStore.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ExceptionMessages.resx">
