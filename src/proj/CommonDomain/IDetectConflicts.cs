@@ -1,14 +1,15 @@
 namespace CommonDomain
 {
-	using System;
 	using System.Collections;
 
 	public interface IDetectConflicts
 	{
-		void Register<TUncommitted, TCommitted>(Func<TUncommitted, TCommitted, bool> handler)
+		void Register<TUncommitted, TCommitted>(ConflictDelegate handler)
 			where TUncommitted : class
 			where TCommitted : class;
 
 		bool ConflictsWith(ICollection uncommittedEvents, ICollection committedEvents);
 	}
+
+	public delegate bool ConflictDelegate(object uncommitted, object committed);
 }

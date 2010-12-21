@@ -5,24 +5,32 @@ namespace CommonDomain.Core
 	using System.Collections.Generic;
 	using System.Linq;
 
+	/// <summary>
+	/// The conflict detector is used to determine if the events to be committed represent
+	/// a true business conflict as compared to events that have already been committed, thus
+	/// allowing reconciliation of optimistic concurrency problems.
+	/// </summary>
+	/// <remarks>
+	/// The implementation contains some internal lambda "magic" which allows casting between
+	/// TCommitted, TUncommitted, and System.Object and in a completely type-safe way.
+	/// </remarks>
 	public class ConflictDetector : IDetectConflicts
 	{
-		// this contains some lambda magic that effectively allows us to cast
-		// between TEvent (committed or uncommitted) and object in a completely type-safe way.
-		private readonly IDictionary<Type, IDictionary<Type, Func<object, object, bool>>> actions =
-			new Dictionary<Type, IDictionary<Type, Func<object, object, bool>>>();
+		private readonly IDictionary<Type, IDictionary<Type, ConflictDelegate>> actions =
+			new Dictionary<Type, IDictionary<Type, ConflictDelegate>>();
 
-		public void Register<TUncommitted, TCommitted>(Func<TUncommitted, TCommitted, bool> handler)
+		public void Register<TUncommitted, TCommitted>(ConflictDelegate handler)
 			where TUncommitted : class
 			where TCommitted : class
 		{
-			IDictionary<Type, Func<object, object, bool>> inner;
+			IDictionary<Type, ConflictDelegate> inner;
 			if (!this.actions.TryGetValue(typeof(TUncommitted), out inner))
-				this.actions[typeof(TUncommitted)] = inner = new Dictionary<Type, Func<object, object, bool>>();
+				this.actions[typeof(TUncommitted)] = inner = new Dictionary<Type, ConflictDelegate>();
 
-			inner[typeof(TCommitted)] =
-				(uncommitted, committed) => handler(uncommitted as TUncommitted, committed as TCommitted);
+			inner[typeof(TCommitted)] = (uncommitted, committed) =>
+				handler(uncommitted as TUncommitted, committed as TCommitted);
 		}
+
 		public bool ConflictsWith(ICollection uncommittedEvents, ICollection committedEvents)
 		{
 			return (from object uncommitted in uncommittedEvents
@@ -30,14 +38,13 @@ namespace CommonDomain.Core
 			        where this.Conflicts(uncommitted, committed)
 			        select uncommittedEvents).Any();
 		}
-
 		private bool Conflicts(object uncommitted, object committed)
 		{
-			IDictionary<Type, Func<object, object, bool>> registration = null;
+			IDictionary<Type, ConflictDelegate> registration;
 			if (!this.actions.TryGetValue(uncommitted.GetType(), out registration))
 				return uncommitted.GetType() == committed.GetType(); // no reg, only conflict if the events are the same time
 
-			Func<object, object, bool> callback = null;
+			ConflictDelegate callback;
 			if (!registration.TryGetValue(committed.GetType(), out callback))
 				return true;
 
