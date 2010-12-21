@@ -1,0 +1,53 @@
+- Add multi-thread safe tracking of heads for streams to facilitate optimistic concurrency detection with document databases
+  when the application code is using an identity map.
+
+- Create fluent configuration code leveraging an IoC container.
+	Autofac (1.4, 2.2, and 2.3) using .NET 3.5 and .NET 4.0
+	StructureMap (latest)
+	Castle
+	Ninject
+	Windsor
+	Unity
+
+- Add additional samples and quickstart examples
+
+- Create adapters for the following storage engines (in no particular order)
+
+	- Relational Databases -
+	[DONE] Microsoft SQL Server (2000 or later)
+	[DONE] Microsoft SQL Azure
+	[DONE] MySQL (4 or later) (InnoDB, Drizzle, MariaDB, etc.)
+	[DONE] Amazon RDS (MySQL)
+	[DONE] SQLite (3 or later)
+	[DONE] PostgreSQL (8 or later) (TODO: failing unit tests)
+	Microsoft Access 2000 (or later)
+	Microsoft SQL Compact Edition (3.5 or later)
+	Oracle (8 or later)
+	Firebird
+	VistaDB
+	
+	- Document Databases -
+	CouchDB
+	MongoDB
+	RavenDB
+
+	- Dynamo Clones -
+	Cassandra
+	Riak
+	Voldemort
+	Dynomite
+
+	- Other NoSQL -
+	Azure Table Storage
+	Amazon SimpleDB
+	Amazon S3
+	Tokyo Cabinet
+	HBase
+	Redis
+	Memcached (and variants)
+	Keyspace
+	OrientDB / OrientKV
+	VoltDB
+	BerkleyDB
+	Hibari
+	HampsterDB

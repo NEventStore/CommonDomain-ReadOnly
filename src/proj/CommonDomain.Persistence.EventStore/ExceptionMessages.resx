@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ConflictingCommand" xml:space="preserve">
     <value>The command issued conflicted with another command that was sent by another user, actor, or process in the system.  The change could not be automatically merged.  Please review the data that has changed and try your change again.</value>
@@ -123,13 +123,7 @@
   <data name="NoWork" xml:space="preserve">
     <value>There were no uncommitted changes to persist.  When attempting to save an aggregate there must be at least one uncommitted event to persist.</value>
   </data>
-  <data name="AggregateArgument" xml:space="preserve">
-    <value>aggregate</value>
-  </data>
   <data name="NullArgument" xml:space="preserve">
     <value>The argument cannot be null.</value>
-  </data>
-  <data name="SagaArgument" xml:space="preserve">
-    <value>saga</value>
   </data>
 </root>

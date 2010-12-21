@@ -61,15 +61,6 @@ namespace CommonDomain.Persistence.EventStore {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to aggregate.
-        /// </summary>
-        internal static string AggregateArgument {
-            get {
-                return ResourceManager.GetString("AggregateArgument", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The command issued conflicted with another command that was sent by another user, actor, or process in the system.  The change could not be automatically merged.  Please review the data that has changed and try your change again..
         /// </summary>
         internal static string ConflictingCommand {
@@ -93,15 +84,6 @@ namespace CommonDomain.Persistence.EventStore {
         internal static string NullArgument {
             get {
                 return ResourceManager.GetString("NullArgument", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to saga.
-        /// </summary>
-        internal static string SagaArgument {
-            get {
-                return ResourceManager.GetString("SagaArgument", resourceCulture);
             }
         }
     }

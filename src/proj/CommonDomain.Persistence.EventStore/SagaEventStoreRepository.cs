@@ -1,25 +1,30 @@
 namespace CommonDomain.Persistence.EventStore
 {
 	using System;
-	using System.Collections;
+	using System.Collections.Generic;
 	using global::EventStore;
+	using global::EventStore.Persistence;
 
 	public class SagaEventStoreRepository : ISagaRepository
 	{
+		private readonly IDictionary<Guid, long> commitSequence = new Dictionary<Guid, long>();
 		private readonly IStoreEvents eventStore;
-		private readonly Action<ICollection> dispatcher;
 
-		public SagaEventStoreRepository(IStoreEvents eventStore, Action<ICollection> dispatcher)
+		public SagaEventStoreRepository(IStoreEvents eventStore)
 		{
 			this.eventStore = eventStore;
-			this.dispatcher = dispatcher;
 		}
 
-		public TSaga GetById<TSaga>(Guid id) where TSaga : class, ISaga, new()
+		public TSaga GetById<TSaga>(Guid sagaId) where TSaga : class, ISaga, new()
+		{
+			var stream = this.eventStore.ReadUntil(sagaId, 0);
+			this.commitSequence[sagaId] = stream.CommitSequence;
+
+			return BuildSaga<TSaga>(stream);
+		}
+		private static TSaga BuildSaga<TSaga>(CommittedEventStream stream) where TSaga : class, ISaga, new()
 		{
 			var saga = new TSaga();
-
-			var stream = this.eventStore.Read(id, 0);
 			foreach (var @event in stream.Events)
 				saga.Transition(@event);
 
@@ -29,46 +34,54 @@ namespace CommonDomain.Persistence.EventStore
 			return saga;
 		}
 
-		public void Save(ISaga saga)
+		public void Save(ISaga saga, Guid commitId, Action<IDictionary<string, object>> headers)
 		{
-			var stream = BuildStream(saga);
-			if (stream.Events.Count == 0)
+			var attempt = this.BuildAttempt(saga, commitId);
+			if (attempt.Events.Count == 0)
 				throw new NotSupportedException(ExceptionMessages.NoWork);
 
-			this.Persist(stream);
-			this.DispatchAndClearUncommittedMessages(saga);
+			if (headers != null)
+				headers(attempt.Headers);
+
+			this.Persist(attempt);
+
+			saga.ClearUndispatchedMessages();
+			saga.ClearUncommittedEvents();
 		}
-		private static UncommittedEventStream BuildStream(ISaga saga)
+		private CommitAttempt BuildAttempt(ISaga saga, Guid commitId)
 		{
 			if (saga == null)
-				throw new ArgumentNullException(
-					ExceptionMessages.SagaArgument, ExceptionMessages.NullArgument);
+				throw new ArgumentNullException("saga", ExceptionMessages.NullArgument);
 
 			var events = saga.GetUncommittedEvents();
-			return new UncommittedEventStream
+
+			var attempt = new CommitAttempt
 			{
-				Id = saga.Id,
-				Type = saga.GetType(),
-				CommittedVersion = saga.Version - events.Count,
-				Events = events
+				StreamId = saga.Id,
+				StreamName = saga.GetType().FullName,
+				CommitId = commitId,
+				PreviousStreamRevision = saga.Version - events.Count,
+				PreviousCommitSequence = this.commitSequence[saga.Id]
 			};
+
+			foreach (var @event in events)
+				attempt.Events.Add(new EventMessage { Body = @event });
+
+			return attempt;
 		}
-		private void Persist(UncommittedEventStream stream)
+		private void Persist(CommitAttempt stream)
 		{
 			try
 			{
 				this.eventStore.Write(stream);
 			}
-			catch (StorageEngineException e)
+			catch (PersistenceEngineException e)
 			{
 				throw new PersistenceException(e.Message, e);
 			}
-		}
-		private void DispatchAndClearUncommittedMessages(ISaga saga)
-		{
-			this.dispatcher(saga.GetUndispatchedMessages());
-			saga.ClearUndispatchedMessages();
-			saga.ClearUncommittedEvents();
+			catch (DuplicateCommitException)
+			{
+			}
 		}
 	}
 }
