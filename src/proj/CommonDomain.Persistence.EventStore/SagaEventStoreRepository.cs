@@ -60,7 +60,7 @@ namespace CommonDomain.Persistence.EventStore
 				StreamId = saga.Id,
 				StreamName = saga.GetType().FullName,
 				CommitId = commitId,
-				PreviousStreamRevision = saga.Version - events.Count,
+				StreamRevision = saga.Version,
 				PreviousCommitSequence = this.commitSequence[saga.Id]
 			};
 
@@ -73,6 +73,7 @@ namespace CommonDomain.Persistence.EventStore
 		{
 			try
 			{
+				// any optimistic concurrency exceptions means we should try again
 				this.eventStore.Write(stream);
 			}
 			catch (PersistenceEngineException e)

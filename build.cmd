@@ -36,7 +36,6 @@ bin\ilmerge-bin\ILMerge.exe /keyfile:src/CommonDomain.snk /xmldocs /targetplatfo
 echo Copying
 mkdir output\doc
 copy doc\*.* output\doc
-copy "lib\eventstore-bin\doc\*.sql" "output\doc\"
 copy "lib\eventstore-bin\doc\license.txt" "output\doc\EventStore license.txt"
 copy "lib\eventstore-bin\doc\protobuf-net license.txt" "output\doc\protobuf-net license.txt"
 

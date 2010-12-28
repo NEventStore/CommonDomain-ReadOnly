@@ -105,9 +105,9 @@
             Gets or sets the value which uniquely identifies the commit within the stream.
             </summary>
     </member>
-    <member name="P:EventStore.CommitAttempt.PreviousStreamRevision">
+    <member name="P:EventStore.CommitAttempt.StreamRevision">
       <summary>
-            Gets or sets the value which indicates the most recent, known head revision of the stream to which this commit attempt applies.
+            Gets or sets the value which indicates the new head revision of the stream to which this commit attempt applies.
             </summary>
     </member>
     <member name="P:EventStore.CommitAttempt.PreviousCommitSequence">
