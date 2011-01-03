@@ -59,10 +59,13 @@ namespace CommonDomain.Persistence.EventStore
 			{
 				StreamId = saga.Id,
 				StreamName = saga.GetType().FullName,
-				CommitId = commitId,
 				StreamRevision = saga.Version,
-				PreviousCommitSequence = this.commitSequence[saga.Id]
+				CommitId = commitId
 			};
+
+			long previousCommitSequence;
+			if (this.commitSequence.TryGetValue(attempt.StreamId, out previousCommitSequence))
+				attempt.PreviousCommitSequence = previousCommitSequence;
 
 			foreach (var @event in events)
 				attempt.Events.Add(new EventMessage { Body = @event });

@@ -52,7 +52,7 @@ namespace CommonDomain.Persistence.EventStore
 
 		public void Save(IAggregate aggregate, Guid commitId, Action<IDictionary<string, object>> headers)
 		{
-			var attempt = BuildAttempt(aggregate, commitId);
+			var attempt = this.BuildAttempt(aggregate, commitId);
 			if (attempt.Events.Count == 0)
 				return;
 
@@ -63,7 +63,7 @@ namespace CommonDomain.Persistence.EventStore
 
 			aggregate.ClearUncommittedEvents();
 		}
-		private static CommitAttempt BuildAttempt(IAggregate aggregate, Guid commitId)
+		private CommitAttempt BuildAttempt(IAggregate aggregate, Guid commitId)
 		{
 			if (aggregate == null)
 				throw new ArgumentNullException("aggregate", ExceptionMessages.NullArgument);
@@ -75,8 +75,12 @@ namespace CommonDomain.Persistence.EventStore
 				StreamId = aggregate.Id,
 				StreamName = aggregate.GetType().FullName,
 				StreamRevision = aggregate.Version,
-				CommitId = commitId,
+				CommitId = commitId
 			};
+
+			long previousCommitSequence;
+			if (this.commitSequence.TryGetValue(attempt.StreamId, out previousCommitSequence))
+				attempt.PreviousCommitSequence = previousCommitSequence;
 
 			foreach (var @event in events)
 				attempt.Events.Add(new EventMessage { Body = @event });
