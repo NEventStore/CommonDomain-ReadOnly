@@ -1,89 +1,92 @@
+#pragma warning disable 169
+// ReSharper disable InconsistentNaming
+
 namespace CommonDomain.AcceptanceTests
 {
-    using System;
-    using Core;
-    using EventStore;
-    using Machine.Specifications;
+	using System;
+	using Core;
+	using Machine.Specifications;
 
-    [Subject("Persistence")]
-    public class When_an_aggregate_is_persisted: in_the_event_store
-    {
-        static Guid id = Guid.NewGuid();
-        static TestAggregate aggregate;
+	[Subject("Persistence")]
+	public class when_an_aggregate_is_persisted: in_the_event_store
+	{
+		static readonly Guid id = Guid.NewGuid();
+		static TestAggregate aggregate;
 
-        Establish context = () => aggregate = new TestAggregate(id,"Some name");
-            
+		Establish context = () => aggregate = new TestAggregate(id, "Some name");
+			
+		Because of = () =>
+			repository.Save(aggregate, Guid.NewGuid(), null);
 
-        Because of = () =>
-            _repository.Save(aggregate, Guid.NewGuid(), null);
+		It should_be_returned_when_calling_get_by_id = () =>
+			repository.GetById<TestAggregate>(id, 0).ShouldEqual(aggregate);
+	}
 
-        It should_be_returned_when_calling_get_by_id = () =>
-                                                     _repository.GetById<TestAggregate>(id, 0).ShouldEqual(aggregate);
-    }
+	[Subject("Persistence")]
+	public class when_an_aggregate_is_updated : in_the_event_store
+	{
+		static readonly Guid Id = Guid.NewGuid();
+		const string NewName = "New name";
 
-    [Subject("Persistence")]
-    public class When_an_aggregate_is_updated : in_the_event_store
-    {
-        static Guid id = Guid.NewGuid();
-        static string newName = "New name";
+		Establish context = () =>
+			repository.Save(new TestAggregate(Id, "Some name"), Guid.NewGuid(), null);
 
-        Establish context = () => _repository.Save(new TestAggregate(id, "Some name"), Guid.NewGuid(), null);
+		Because of = () =>
+		{
+			var aggregate = repository.GetById<TestAggregate>(Id, 0);
+			aggregate.ChangeName(NewName);
 
+			repository.Save(aggregate, Guid.NewGuid(), null);
+		};
+		  
+		It should_the_version_number_should_increase = () =>
+			repository.GetById<TestAggregate>(Id, 0).Version.ShouldEqual(2);
 
-        Because of = () =>
-            {
-                var aggregate = _repository.GetById<TestAggregate>(id, 0);
-                aggregate.ChangeName(newName);
+		It should_update_the_aggregate = () =>
+			repository.GetById<TestAggregate>(Id, 0).Name.ShouldEqual(NewName);
+	}
 
-                _repository.Save(aggregate,Guid.NewGuid(),null);
-            };
-          
-        It should_the_version_number_should_increase = () =>
-                                                     _repository.GetById<TestAggregate>(id, 0).Version.ShouldEqual(2);
-        It should_update_the_aggregate = () =>
-                                                     _repository.GetById<TestAggregate>(id, 0).Name.ShouldEqual(newName);
-    }
+	public class TestAggregate : AggregateBase<IDomainEvent>
+	{
+		public string Name { get; set; }
+		public TestAggregate(Guid id)
+		{
+			this.Register<TestAggregateCreatedEvent>(this.Apply);
+			this.Register<NameChangedEvent>(this.Apply);
+			this.Id = id;
+		}
 
+		public TestAggregate(Guid id, string name)
+			:this(id)
+		{
+			this.RaiseEvent(new TestAggregateCreatedEvent { Name = name });
+		}
 
-    public class TestAggregate : AggregateBase<IDomainEvent>
-    {
-        public string Name { get; set; }
-        public TestAggregate(Guid id)
-        {
-            Register<TestAggregateCreatedEvent>(Apply);
-            Register<NameChangedEvent>(Apply);
-            Id = id;
-        }
+		private void Apply(TestAggregateCreatedEvent @event)
+		{
+			this.Name = @event.Name;
+		}
 
-        public TestAggregate(Guid id,string name):this(id)
-        {
-            this.RaiseEvent(new TestAggregateCreatedEvent
-                                {
-                                    Name = name
-                                });
-        }
-        private void Apply(TestAggregateCreatedEvent @event)
-        {
-            Name = @event.Name;
-        }
-        private void Apply(NameChangedEvent @event)
-        {
-            Name = @event.Name;
-        }
+		public void ChangeName(string newName)
+		{
+			this.RaiseEvent(new NameChangedEvent { Name = newName });
+		}
+		private void Apply(NameChangedEvent @event)
+		{
+			this.Name = @event.Name;
+		}
+	}
 
-        public void ChangeName(string newName)
-        {
-            this.RaiseEvent(new NameChangedEvent{Name = newName});
-        }
-    }
+	public class NameChangedEvent : IDomainEvent
+	{
+		public string Name { get; set; }
+	}
 
-    public class NameChangedEvent : IDomainEvent
-    {
-        public string Name { get; set; }
-    }
-
-    public class TestAggregateCreatedEvent : IDomainEvent
-    {
-        public string Name { get; set; }
-    }
+	public class TestAggregateCreatedEvent : IDomainEvent
+	{
+		public string Name { get; set; }
+	}
 }
+
+// ReSharper enable InconsistentNaming
+#pragma warning restore 169

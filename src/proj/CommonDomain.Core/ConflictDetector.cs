@@ -34,9 +34,9 @@ namespace CommonDomain.Core
 		public bool ConflictsWith(ICollection uncommittedEvents, ICollection committedEvents)
 		{
 			return (from object uncommitted in uncommittedEvents
-			        from object committed in committedEvents
-			        where this.Conflicts(uncommitted, committed)
-			        select uncommittedEvents).Any();
+					from object committed in committedEvents
+					where this.Conflicts(uncommitted, committed)
+					select uncommittedEvents).Any();
 		}
 		private bool Conflicts(object uncommitted, object committed)
 		{

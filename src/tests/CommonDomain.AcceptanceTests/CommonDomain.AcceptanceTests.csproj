@@ -31,24 +31,34 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EventStore">
-      <HintPath>..\..\..\lib\eventstore-bin\.NET 4.0\EventStore.dll</HintPath>
-    </Reference>
-    <Reference Include="Machine.Specifications">
-      <HintPath>..\..\..\bin\machine.specifications-bin\.NET 4.0\Machine.Specifications.dll</HintPath>
-    </Reference>
+	<Reference Include="Machine.Specifications">
+		<RequiredTargetFramework>3.5</RequiredTargetFramework>
+		<HintPath>..\..\..\bin\machine.specifications-bin\.NET 3.5\Machine.Specifications.dll</HintPath>
+	</Reference>
+	<Reference Include="Machine.Specifications" Condition="$(TargetFrameworkVersion)=='v4.0'">
+		<RequiredTargetFramework>4.0</RequiredTargetFramework>
+		<HintPath>..\..\..\bin\machine.specifications-bin\.NET 4.0\Machine.Specifications.dll</HintPath>
+	</Reference>
+	<Reference Include="EventStore">
+		<RequiredTargetFramework>3.5</RequiredTargetFramework>
+		<HintPath>..\..\..\lib\eventstore-bin\.NET 3.5\EventStore.dll</HintPath>
+	</Reference>
+	<Reference Include="EventStore" Condition="$(TargetFrameworkVersion)=='v4.0'">
+		<RequiredTargetFramework>4.0</RequiredTargetFramework>
+		<HintPath>..\..\..\lib\eventstore-bin\.NET 4.0\EventStore.dll</HintPath>
+	</Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\proj\GlobalAssemblyInfo.cs">
-      <Link>GlobalAssemblyInfo.cs</Link>
+      <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="..\..\proj\GlobalSuppressions.cs">
-      <Link>GlobalSuppressions.cs</Link>
+      <Link>Properties\GlobalSuppressions.cs</Link>
     </Compile>
     <Compile Include="..\..\proj\VersionAssemblyInfo.cs">
-      <Link>VersionAssemblyInfo.cs</Link>
+      <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="in_the_event_store.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -74,15 +84,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\..\proj\CustomDictionary.xml">
-      <Link>CustomDictionary.xml</Link>
+      <Link>Properties\CustomDictionary.xml</Link>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
