@@ -423,6 +423,11 @@
       <param name="headRevision">The value which indicates the revision, length, or number of events committed to the stream.</param>
       <param name="snapshotRevision">The value which indicates the revision at which the last snapshot was taken.</param>
     </member>
+    <member name="M:EventStore.Persistence.StreamHead.#ctor">
+      <summary>
+            Initializes a new instance of the StreamHead class.
+            </summary>
+    </member>
     <member name="M:EventStore.Persistence.StreamHead.Equals(System.Object)">
       <summary>
             Determines whether the specified object is equal to the current object.
