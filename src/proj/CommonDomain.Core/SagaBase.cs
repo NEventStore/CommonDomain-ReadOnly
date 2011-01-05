@@ -12,7 +12,7 @@ namespace CommonDomain.Core
 		private readonly ICollection<TMessage> undispatched = new LinkedList<TMessage>();
 
 		public Guid Id { get; protected set; }
-		public long Version { get; private set; }
+		public int Version { get; private set; }
 
 		protected void Register<TRegisteredMessage>(Action<TRegisteredMessage> handler)
 			where TRegisteredMessage : class, TMessage

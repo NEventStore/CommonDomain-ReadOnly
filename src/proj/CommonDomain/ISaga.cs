@@ -6,7 +6,7 @@ namespace CommonDomain
 	public interface ISaga
 	{
 		Guid Id { get; }
-		long Version { get; }
+		int Version { get; }
 
 		void Transition(object message);
 

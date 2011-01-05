@@ -7,7 +7,7 @@ namespace CommonDomain.Persistence.EventStore
 
 	public class SagaEventStoreRepository : ISagaRepository
 	{
-		private readonly IDictionary<Guid, long> commitSequence = new Dictionary<Guid, long>();
+		private readonly IDictionary<Guid, int> commitSequence = new Dictionary<Guid, int>();
 		private readonly IStoreEvents eventStore;
 
 		public SagaEventStoreRepository(IStoreEvents eventStore)
@@ -58,12 +58,11 @@ namespace CommonDomain.Persistence.EventStore
 			var attempt = new CommitAttempt
 			{
 				StreamId = saga.Id,
-				StreamName = saga.GetType().FullName,
 				StreamRevision = saga.Version,
 				CommitId = commitId
 			};
 
-			long previousCommitSequence;
+			int previousCommitSequence;
 			if (this.commitSequence.TryGetValue(attempt.StreamId, out previousCommitSequence))
 				attempt.PreviousCommitSequence = previousCommitSequence;
 

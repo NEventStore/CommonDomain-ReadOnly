@@ -6,7 +6,7 @@ namespace CommonDomain
 	public interface IAggregate
 	{
 		Guid Id { get; }
-		long Version { get; }
+		int Version { get; }
 
 		void ApplyEvent(object @event);
 		ICollection GetUncommittedEvents();

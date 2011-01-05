@@ -11,7 +11,7 @@ namespace CommonDomain.Core
 		private readonly ICollection<TEvent> uncommittedEvents = new LinkedList<TEvent>();
 
 		public Guid Id { get; protected set; }
-		public long Version { get; protected set; }
+		public int Version { get; protected set; }
 
 		protected void Register<TRegisteredEvent>(Action<TRegisteredEvent> handler)
 			where TRegisteredEvent : class, TEvent

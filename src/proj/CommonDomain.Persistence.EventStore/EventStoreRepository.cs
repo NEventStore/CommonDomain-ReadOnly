@@ -8,7 +8,7 @@ namespace CommonDomain.Persistence.EventStore
 
 	public class EventStoreRepository : IRepository
 	{
-		private readonly IDictionary<Guid, long> commitSequence = new Dictionary<Guid, long>();
+		private readonly IDictionary<Guid, int> commitSequence = new Dictionary<Guid, int>();
 
 		private readonly IStoreEvents eventStore;
 		private readonly IConstructAggregates factory;
@@ -27,7 +27,7 @@ namespace CommonDomain.Persistence.EventStore
 			this.conflictDetector = conflictDetector;
 		}
 
-		public TAggregate GetById<TAggregate>(Guid id, long versionToLoad) where TAggregate : class, IAggregate
+		public TAggregate GetById<TAggregate>(Guid id, int versionToLoad) where TAggregate : class, IAggregate
 		{
 			var stream = this.eventStore.ReadUntil(id, versionToLoad);
 			this.commitSequence[id] = stream.CommitSequence;
@@ -73,12 +73,11 @@ namespace CommonDomain.Persistence.EventStore
 			var attempt = new CommitAttempt
 			{
 				StreamId = aggregate.Id,
-				StreamName = aggregate.GetType().FullName,
 				StreamRevision = aggregate.Version,
 				CommitId = commitId
 			};
 
-			long previousCommitSequence;
+			int previousCommitSequence;
 			if (this.commitSequence.TryGetValue(attempt.StreamId, out previousCommitSequence))
 				attempt.PreviousCommitSequence = previousCommitSequence;
 
@@ -97,7 +96,7 @@ namespace CommonDomain.Persistence.EventStore
 			catch (ConcurrencyException e)
 			{
 				var since = this.eventStore.ReadFrom(attempt.StreamId, attempt.StreamRevision);
-				if (this.conflictDetector.ConflictsWith((ICollection)attempt.Events, since.Events))
+				if (this.conflictDetector.ConflictsWith((ICollection)attempt.Events, (ICollection)since.Events))
 					throw new ConflictingCommandException(ExceptionMessages.ConflictingCommand, e);
 
 				attempt.StreamRevision += since.StreamRevision + attempt.Events.Count;

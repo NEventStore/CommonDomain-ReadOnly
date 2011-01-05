@@ -9,7 +9,7 @@
             Represents a series of events which have been fully committed and applied to the stream indicated.
             </summary>
     </member>
-    <member name="M:EventStore.CommittedEventStream.#ctor(System.Guid,System.Int64,System.Int64,System.Collections.ICollection,System.Object)">
+    <member name="M:EventStore.CommittedEventStream.#ctor(System.Guid,System.Int32,System.Int32,System.Collections.Generic.ICollection{System.Object},System.Collections.Generic.ICollection{System.Guid},System.Object)">
       <summary>
             Initializes a new instance of the CommittedEventStream class.
             </summary>
@@ -17,6 +17,7 @@
       <param name="streamRevision">The value indicating the most recent revision of the stream for the events retreived.</param>
       <param name="commitSequence">The value indicating the most recent commit applied to the stream for the events retreived.</param>
       <param name="events">The series of committed events.</param>
+      <param name="commitIdentifiers">The set of values which uniquely identify the commits associated with set of events.</param>
       <param name="snapshot">The snapshot, if any, containing a serialized revision of the stream upon which the events provided can be applied.</param>
     </member>
     <member name="P:EventStore.CommittedEventStream.StreamId">
@@ -37,6 +38,11 @@
     <member name="P:EventStore.CommittedEventStream.Events">
       <summary>
             Gets the series of committed events.
+            </summary>
+    </member>
+    <member name="P:EventStore.CommittedEventStream.CommitIdentifiers">
+      <summary>
+            Gets the set of values which uniquely identify the commits associated with set of events.
             </summary>
     </member>
     <member name="P:EventStore.CommittedEventStream.Snapshot">
@@ -95,11 +101,6 @@
             Gets or sets the value which uniquely identifies the stream to which the commit attempt belongs.
             </summary>
     </member>
-    <member name="P:EventStore.CommitAttempt.StreamName">
-      <summary>
-            Gets or sets the friendly name of the stream.
-            </summary>
-    </member>
     <member name="P:EventStore.CommitAttempt.CommitId">
       <summary>
             Gets or sets the value which uniquely identifies the commit within the stream.
@@ -141,7 +142,7 @@
             Indicates the ability to store and retreive a stream of events.
             </summary>
     </member>
-    <member name="M:EventStore.IStoreEvents.ReadUntil(System.Guid,System.Int64)">
+    <member name="M:EventStore.IStoreEvents.ReadUntil(System.Guid,System.Int32)">
       <summary>
             Reads from the stream indicated from most recent snapshot, if any, up to and including the revision specified.
             </summary>
@@ -149,7 +150,7 @@
       <param name="maxRevision">The maximum revision of the stream to be read.</param>
       <returns>A series of committed events from the stream specified.</returns>
     </member>
-    <member name="M:EventStore.IStoreEvents.ReadFrom(System.Guid,System.Int64)">
+    <member name="M:EventStore.IStoreEvents.ReadFrom(System.Guid,System.Int32)">
       <summary>
             Reads from the stream indicated from the revision specified until the end of the stream.
             </summary>
@@ -188,7 +189,7 @@
             Represents a series of events which have been fully committed as a single unit and which apply to the stream indicated.
             </summary>
     </member>
-    <member name="M:EventStore.Persistence.Commit.#ctor(System.Guid,System.Guid,System.Int64,System.Int64,System.Collections.Generic.IDictionary{System.String,System.Object},System.Collections.Generic.ICollection{EventStore.EventMessage},System.Object)">
+    <member name="M:EventStore.Persistence.Commit.#ctor(System.Guid,System.Guid,System.Int32,System.Int32,System.Collections.Generic.IDictionary{System.String,System.Object},System.Collections.Generic.ICollection{EventStore.EventMessage},System.Object)">
       <summary>
             Initializes a new instance of the Commit class.
             </summary>
@@ -247,6 +248,17 @@
       <summary>
             Gets the snapshot, if any, which represents a materialization of the stream at the last event of the commit.
             </summary>
+    </member>
+    <member name="T:EventStore.Persistence.IPersistenceFactory">
+      <summary>
+            Indicates the ability to build a ready-to-use persistence engine.
+            </summary>
+    </member>
+    <member name="M:EventStore.Persistence.IPersistenceFactory.Build">
+      <summary>
+            Builds a persistence engine.
+            </summary>
+      <returns>A ready-to-use persistence engine.</returns>
     </member>
     <member name="T:EventStore.Serialization.ISerialize">
       <summary>
@@ -307,7 +319,7 @@
             Initializes and prepares the storage for use, if not already performed.
             </summary>
     </member>
-    <member name="M:EventStore.Persistence.IPersistStreams.GetUntil(System.Guid,System.Int64)">
+    <member name="M:EventStore.Persistence.IPersistStreams.GetUntil(System.Guid,System.Int32)">
       <summary>
             Gets the corresponding commits from the stream indicated starting at the most recent snapshot, if any,
             up to and including the revision specified sorted in ascending order--from oldest to newest.
@@ -316,7 +328,7 @@
       <param name="maxRevision">The maximum revision of the stream to be read.</param>
       <returns>A series of committed events from the stream specified sorted in ascending order.</returns>
     </member>
-    <member name="M:EventStore.Persistence.IPersistStreams.GetFrom(System.Guid,System.Int64)">
+    <member name="M:EventStore.Persistence.IPersistStreams.GetFrom(System.Guid,System.Int32)">
       <summary>
             Gets the corresponding commits from the stream indicated starting at the revision specified until the
             end of the stream sorted in ascending order--from oldest to newest.
@@ -350,7 +362,7 @@
       <param name="maxThreshold">The maximum difference between the head and most recent snapshot revisions.</param>
       <returns>The streams for which the head and snapshot revisions differ by at least the threshold specified.</returns>
     </member>
-    <member name="M:EventStore.Persistence.IPersistStreams.AddSnapshot(System.Guid,System.Int64,System.Object)">
+    <member name="M:EventStore.Persistence.IPersistStreams.AddSnapshot(System.Guid,System.Int32,System.Object)">
       <summary>
             Adds the snapshot provided to the stream indicated the commit sequence specified.
             </summary>
@@ -414,12 +426,11 @@
             Indicates the most recent information representing the head of a given stream.
             </summary>
     </member>
-    <member name="M:EventStore.Persistence.StreamHead.#ctor(System.Guid,System.String,System.Int64,System.Int64)">
+    <member name="M:EventStore.Persistence.StreamHead.#ctor(System.Guid,System.Int32,System.Int32)">
       <summary>
             Initializes a new instance of the StreamHead class.
             </summary>
       <param name="streamId">The value which uniquely identifies the stream where the last snapshot exceeds the allowed threshold.</param>
-      <param name="streamName">The name of the stream.</param>
       <param name="headRevision">The value which indicates the revision, length, or number of events committed to the stream.</param>
       <param name="snapshotRevision">The value which indicates the revision at which the last snapshot was taken.</param>
     </member>
@@ -444,11 +455,6 @@
     <member name="P:EventStore.Persistence.StreamHead.StreamId">
       <summary>
             Gets the value which uniquely identifies the stream where the last snapshot exceeds the allowed threshold.
-            </summary>
-    </member>
-    <member name="P:EventStore.Persistence.StreamHead.StreamName">
-      <summary>
-            Gets the name of the stream.
             </summary>
     </member>
     <member name="P:EventStore.Persistence.StreamHead.HeadRevision">

@@ -19,7 +19,7 @@ namespace CommonDomain.AcceptanceTests
 			repository.Save(aggregate, Guid.NewGuid(), null);
 
 		It should_be_returned_when_calling_get_by_id = () =>
-			repository.GetById<TestAggregate>(id, 0).ShouldEqual(aggregate);
+			repository.GetById<TestAggregate>(id, 0).Id.ShouldEqual(aggregate.Id);
 	}
 
 	[Subject("Persistence")]
@@ -59,11 +59,16 @@ namespace CommonDomain.AcceptanceTests
 		public TestAggregate(Guid id, string name)
 			:this(id)
 		{
-			this.RaiseEvent(new TestAggregateCreatedEvent { Name = name });
+			this.RaiseEvent(new TestAggregateCreatedEvent
+			{
+				Id = this.Id,
+				Name = name
+			});
 		}
 
 		private void Apply(TestAggregateCreatedEvent @event)
 		{
+			this.Id = @event.Id;
 			this.Name = @event.Name;
 		}
 
@@ -77,13 +82,16 @@ namespace CommonDomain.AcceptanceTests
 		}
 	}
 
+	[Serializable]
 	public class NameChangedEvent : IDomainEvent
 	{
 		public string Name { get; set; }
 	}
 
+	[Serializable]
 	public class TestAggregateCreatedEvent : IDomainEvent
 	{
+		public Guid Id { get; set; }
 		public string Name { get; set; }
 	}
 }
