@@ -5,6 +5,6 @@ namespace CommonDomain
 	public interface IMemento
 	{
 		Guid Id { get; set; }
-		long Version { get; set; }
+		int Version { get; set; }
 	}
 }

@@ -4,6 +4,6 @@ namespace CommonDomain.Persistence
 
 	public interface IStampAggregateVersion
 	{
-		void SetVersion(ICollection events, long startingVersion);
+		void SetVersion(ICollection events, int startingVersion);
 	}
 }

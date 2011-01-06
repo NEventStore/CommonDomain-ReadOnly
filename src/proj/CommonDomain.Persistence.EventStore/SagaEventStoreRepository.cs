@@ -7,6 +7,7 @@ namespace CommonDomain.Persistence.EventStore
 
 	public class SagaEventStoreRepository : ISagaRepository
 	{
+		private const string SagaTypeHeader = "SagaType";
 		private readonly IDictionary<Guid, int> commitSequence = new Dictionary<Guid, int>();
 		private readonly IStoreEvents eventStore;
 
@@ -42,6 +43,8 @@ namespace CommonDomain.Persistence.EventStore
 
 			if (headers != null)
 				headers(attempt.Headers);
+
+			attempt.Headers[SagaTypeHeader] = saga.GetType().FullName;
 
 			this.Persist(attempt);
 

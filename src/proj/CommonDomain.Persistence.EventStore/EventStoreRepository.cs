@@ -8,8 +8,8 @@ namespace CommonDomain.Persistence.EventStore
 
 	public class EventStoreRepository : IRepository
 	{
+		private const string AggregateTypeHeader = "AggregateType";
 		private readonly IDictionary<Guid, int> commitSequence = new Dictionary<Guid, int>();
-
 		private readonly IStoreEvents eventStore;
 		private readonly IConstructAggregates factory;
 		private readonly IStampAggregateVersion stamper;
@@ -33,7 +33,7 @@ namespace CommonDomain.Persistence.EventStore
 			this.commitSequence[id] = stream.CommitSequence;
 			return this.BuildAggregate<TAggregate>(stream, versionToLoad);
 		}
-		private TAggregate BuildAggregate<TAggregate>(CommittedEventStream stream, long versionToLoad)
+		private TAggregate BuildAggregate<TAggregate>(CommittedEventStream stream, int versionToLoad)
 			where TAggregate : class, IAggregate
 		{
 			var aggregate = this.factory.Build(
@@ -45,7 +45,7 @@ namespace CommonDomain.Persistence.EventStore
 
 			return aggregate as TAggregate;
 		}
-		private static bool CanApplyEvents(IAggregate aggregate, long versionToLoad)
+		private static bool CanApplyEvents(IAggregate aggregate, int versionToLoad)
 		{
 			return versionToLoad == 0 || aggregate.Version < versionToLoad;
 		}
@@ -58,6 +58,8 @@ namespace CommonDomain.Persistence.EventStore
 
 			if (headers != null)
 				headers(attempt.Headers);
+
+			attempt.Headers[AggregateTypeHeader] = aggregate.GetType().FullName;
 
 			this.Persist(attempt);
 

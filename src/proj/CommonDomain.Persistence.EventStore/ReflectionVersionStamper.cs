@@ -20,7 +20,7 @@ namespace CommonDomain.Persistence.EventStore
 			this.propertyName = propertyName ?? DefaultPropertyName;
 		}
 
-		public void SetVersion(ICollection events, long startingVersion)
+		public void SetVersion(ICollection events, int startingVersion)
 		{
 			if (events == null || events.Count <= 0)
 				return;
@@ -28,7 +28,7 @@ namespace CommonDomain.Persistence.EventStore
 			foreach (var @event in events)
 				this.SetEventVersion(@event, startingVersion++);
 		}
-		private void SetEventVersion(object @event, long version)
+		private void SetEventVersion(object @event, int version)
 		{
 			if (@event == null)
 				return;
