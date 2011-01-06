@@ -101,14 +101,14 @@
             Gets or sets the value which uniquely identifies the stream to which the commit attempt belongs.
             </summary>
     </member>
-    <member name="P:EventStore.CommitAttempt.CommitId">
-      <summary>
-            Gets or sets the value which uniquely identifies the commit within the stream.
-            </summary>
-    </member>
     <member name="P:EventStore.CommitAttempt.StreamRevision">
       <summary>
             Gets or sets the value which indicates the new head revision of the stream to which this commit attempt applies.
+            </summary>
+    </member>
+    <member name="P:EventStore.CommitAttempt.CommitId">
+      <summary>
+            Gets or sets the value which uniquely identifies the commit within the stream.
             </summary>
     </member>
     <member name="P:EventStore.CommitAttempt.PreviousCommitSequence">
@@ -189,13 +189,13 @@
             Represents a series of events which have been fully committed as a single unit and which apply to the stream indicated.
             </summary>
     </member>
-    <member name="M:EventStore.Persistence.Commit.#ctor(System.Guid,System.Guid,System.Int32,System.Int32,System.Collections.Generic.IDictionary{System.String,System.Object},System.Collections.Generic.ICollection{EventStore.EventMessage},System.Object)">
+    <member name="M:EventStore.Persistence.Commit.#ctor(System.Guid,System.Int32,System.Guid,System.Int32,System.Collections.Generic.IDictionary{System.String,System.Object},System.Collections.Generic.ICollection{EventStore.EventMessage},System.Object)">
       <summary>
             Initializes a new instance of the Commit class.
             </summary>
       <param name="streamId">The value which uniquely identifies the stream to which the commit belongs.</param>
-      <param name="commitId">The value which uniquely identifies the commit within the stream.</param>
       <param name="streamRevision">The value which indicates the revision of the most recent event in the stream to which this commit applies.</param>
+      <param name="commitId">The value which uniquely identifies the commit within the stream.</param>
       <param name="commitSequence">The value which indicates the sequence (or position) in the stream to which this commit applies.</param>
       <param name="headers">The metadata which provides additional, unstructured information about this commit.</param>
       <param name="events">The collection of event messages to be committed as a single unit.</param>
@@ -219,14 +219,14 @@
             Gets the value which uniquely identifies the stream to which the commit belongs.
             </summary>
     </member>
-    <member name="P:EventStore.Persistence.Commit.CommitId">
-      <summary>
-            Gets the value which uniquely identifies the commit within the stream.
-            </summary>
-    </member>
     <member name="P:EventStore.Persistence.Commit.StreamRevision">
       <summary>
             Gets the value which indicates the revision of the most recent event in the stream to which this commit applies.
+            </summary>
+    </member>
+    <member name="P:EventStore.Persistence.Commit.CommitId">
+      <summary>
+            Gets the value which uniquely identifies the commit within the stream.
             </summary>
     </member>
     <member name="P:EventStore.Persistence.Commit.CommitSequence">

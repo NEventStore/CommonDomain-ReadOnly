@@ -1,6 +1,3 @@
-- Add multi-thread safe tracking of heads for streams to facilitate optimistic concurrency detection with document databases
-  when the application code is using an identity map.
-
 - Create fluent configuration code that doesn't require an IoC container.
 - Add additional samples and quickstart examples
 - Create adapters for the following storage engines (in no particular order)
@@ -13,17 +10,16 @@
 	[DONE] SQLite (3 or later)
 	[DONE] PostgreSQL (8 or later)
 	[DONE] Microsoft SQL Compact Edition 3.5 (or later)
-	Firebird (ADO.NET driver)
-	Microsoft Access 2000 (or later)
+	[DONE] Firebird (ADO.NET driver)
+	[DONE] Microsoft Access 2000 (or later)
 	Oracle (8 or later)
+	IBM DB2
 	VistaDB
 
-	(TODO: Create SqlPersistenceFactory such that the persistence adapter can be entirely self contained.)
-	
 	- Document Databases -
-	CouchDB
-	[IN PROGRESS] MongoDB
+	[DONE] MongoDB
 	[IN PROGRESS] RavenDB
+	CouchDB
 
 	- File System
 	Managed storage using .NET APIs.

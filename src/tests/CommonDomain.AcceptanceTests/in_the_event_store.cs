@@ -10,7 +10,6 @@ namespace CommonDomain.AcceptanceTests
 	using EventStore;
 	using EventStore.Dispatcher;
 	using EventStore.Persistence;
-	using EventStore.Persistence.InMemoryPersistence;
 	using Machine.Specifications;
 	using Persistence;
 	using Persistence.EventStore;
