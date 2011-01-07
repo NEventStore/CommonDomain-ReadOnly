@@ -7,16 +7,26 @@ namespace CommonDomain.Core
 	public abstract class AggregateBase<TEvent> : IAggregate, IEquatable<IAggregate>
 		where TEvent : class
 	{
-		private readonly IDictionary<Type, Action<TEvent>> handlers = new Dictionary<Type, Action<TEvent>>();
 		private readonly ICollection<TEvent> uncommittedEvents = new LinkedList<TEvent>();
+		private readonly IRouteEvents<TEvent> registeredRoutes = new RegistrationEventRouter<TEvent>();
+
+		protected AggregateBase()
+			: this(null)
+		{
+		}
+		protected AggregateBase(IRouteEvents<TEvent> handler)
+		{
+			this.registeredRoutes = handler ?? this.registeredRoutes;
+			this.registeredRoutes.Register(this);
+		}
 
 		public Guid Id { get; protected set; }
 		public int Version { get; protected set; }
 
-		protected void Register<TRegisteredEvent>(Action<TRegisteredEvent> handler)
+		protected void Register<TRegisteredEvent>(Action<TRegisteredEvent> route)
 			where TRegisteredEvent : class, TEvent
 		{
-			this.handlers[typeof(TRegisteredEvent)] = @event => handler(@event as TRegisteredEvent);
+			this.registeredRoutes.Register(route);
 		}
 
 		protected void RaiseEvent(TEvent @event)
@@ -26,7 +36,7 @@ namespace CommonDomain.Core
 		}
 		void IAggregate.ApplyEvent(object @event)
 		{
-			this.handlers[@event.GetType()](@event as TEvent);
+			this.registeredRoutes.Dispatch(@event);
 			this.Version++;
 		}
 		ICollection IAggregate.GetUncommittedEvents()

@@ -47,6 +47,7 @@
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="IAggregate.cs" />
+    <Compile Include="IRouteEvents.cs" />
     <Compile Include="IDetectConflicts.cs" />
     <Compile Include="IMemento.cs" />
     <Compile Include="ISaga.cs" />
