@@ -36,6 +36,9 @@ namespace CommonDomain.Persistence.EventStore
 		private TAggregate BuildAggregate<TAggregate>(CommittedEventStream stream, int versionToLoad)
 			where TAggregate : class, IAggregate
 		{
+			if (stream == null || stream.Events.Count == 0)
+				return null;
+
 			var aggregate = this.factory.Build(
 				typeof(TAggregate), stream.StreamId, stream.Snapshot as IMemento);
 
