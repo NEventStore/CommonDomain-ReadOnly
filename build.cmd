@@ -31,6 +31,7 @@ SET FILES_TO_MERGE=
 SET FILES_TO_MERGE=%FILES_TO_MERGE% "src/proj/CommonDomain/bin/%TARGET_CONFIG%/CommonDomain.dll"
 SET FILES_TO_MERGE=%FILES_TO_MERGE% "src/proj/CommonDomain.Core/bin/%TARGET_CONFIG%/CommonDomain.Core.dll"
 SET FILES_TO_MERGE=%FILES_TO_MERGE% "src/proj/CommonDomain.Persistence/bin/%TARGET_CONFIG%/CommonDomain.Persistence.dll"
+SET FILES_TO_MERGE=%FILES_TO_MERGE% "src/proj/CommonDomain.Persistence.EventStore/bin/%TARGET_CONFIG%/CommonDomain.Persistence.EventStore.dll"
 bin\ilmerge-bin\ILMerge.exe /keyfile:src/CommonDomain.snk /xmldocs /targetplatform:%ILMERGE_VERSION% /out:output/bin/CommonDomain.dll %FILES_TO_MERGE%
 copy "lib\eventstore-bin\.NET %LIB_DIRECTORY%\*.*" "output\bin\"
 
