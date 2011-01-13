@@ -99,16 +99,32 @@ namespace CommonDomain.Persistence.EventStore
 				this.eventStore.Write(attempt);
 				this.commitSequence[attempt.StreamId] = attempt.PreviousCommitSequence + 1;
 			}
-			catch (ConcurrencyException e)
-			{
-				var since = this.eventStore.ReadFrom(attempt.StreamId, attempt.StreamRevision);
-				if (this.conflictDetector.ConflictsWith((ICollection)attempt.Events, (ICollection)since.Events))
-					throw new ConflictingCommandException(ExceptionMessages.ConflictingCommand, e);
+            catch (ConcurrencyException e)
+            {
+                var since = this.eventStore.ReadFrom(attempt.StreamId, attempt.StreamRevision);
+                if (this.conflictDetector.ConflictsWith((ICollection)attempt.Events, (ICollection)since.Events))
+                    throw new ConflictingCommandException(ExceptionMessages.ConflictingCommand, e);
 
-				attempt.PreviousCommitSequence = since.CommitSequence;
-				attempt.StreamRevision += since.Events.Count;
-				this.Persist(attempt);
-			}
+                attempt.PreviousCommitSequence = since.CommitSequence;
+                attempt.StreamRevision += since.Events.Count;
+
+                this.commitSequence[attempt.StreamId] = ++attempt.PreviousCommitSequence;
+            }
+            //catch (ConcurrencyException e)
+            //{
+            //    var revisionBeforeAttempt = attempt.StreamRevision - attempt.Events.Count; //calculate my original revision
+
+            //    //give me all commits for this stream that have incremented the revision beyond the one I started with, considering that the ReadFrom method includes the revision specified
+            //    var since = this.eventStore.ReadFrom(attempt.StreamId, revisionBeforeAttempt + 1);
+
+            //    if (this.conflictDetector.ConflictsWith((ICollection)attempt.Events, (ICollection)since.Events))
+            //        throw new ConflictingCommandException(ExceptionMessages.ConflictingCommand, e);
+
+            //    attempt.StreamRevision += since.Events.Count;
+            //    attempt.PreviousCommitSequence = since.CommitSequence;
+
+            //    this.Persist(attempt);
+            //}
 			catch (DuplicateCommitException)
 			{
 			}
