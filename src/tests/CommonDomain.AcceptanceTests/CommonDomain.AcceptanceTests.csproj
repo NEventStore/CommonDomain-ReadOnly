@@ -31,22 +31,22 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-	<Reference Include="Machine.Specifications">
-		<RequiredTargetFramework>3.5</RequiredTargetFramework>
-		<HintPath>..\..\..\bin\machine.specifications-bin\.NET 3.5\Machine.Specifications.dll</HintPath>
-	</Reference>
-	<Reference Include="Machine.Specifications" Condition="$(TargetFrameworkVersion)=='v4.0'">
-		<RequiredTargetFramework>4.0</RequiredTargetFramework>
-		<HintPath>..\..\..\bin\machine.specifications-bin\.NET 4.0\Machine.Specifications.dll</HintPath>
-	</Reference>
-	<Reference Include="EventStore">
-		<RequiredTargetFramework>3.5</RequiredTargetFramework>
-		<HintPath>..\..\..\lib\eventstore-bin\.NET 3.5\EventStore.dll</HintPath>
-	</Reference>
-	<Reference Include="EventStore" Condition="$(TargetFrameworkVersion)=='v4.0'">
-		<RequiredTargetFramework>4.0</RequiredTargetFramework>
-		<HintPath>..\..\..\lib\eventstore-bin\.NET 4.0\EventStore.dll</HintPath>
-	</Reference>
+    <Reference Include="Machine.Specifications">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+      <HintPath>..\..\..\bin\machine.specifications-bin\.NET 3.5\Machine.Specifications.dll</HintPath>
+    </Reference>
+    <Reference Include="Machine.Specifications" Condition="$(TargetFrameworkVersion)=='v4.0'">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+      <HintPath>..\..\..\bin\machine.specifications-bin\.NET 4.0\Machine.Specifications.dll</HintPath>
+    </Reference>
+    <Reference Include="EventStore">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+      <HintPath>..\..\..\lib\eventstore-bin\.NET 3.5\EventStore.dll</HintPath>
+    </Reference>
+    <Reference Include="EventStore" Condition="$(TargetFrameworkVersion)=='v4.0'">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+      <HintPath>..\..\..\lib\eventstore-bin\.NET 4.0\EventStore.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
@@ -86,6 +86,9 @@
     <Content Include="..\..\proj\CustomDictionary.xml">
       <Link>Properties\CustomDictionary.xml</Link>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
