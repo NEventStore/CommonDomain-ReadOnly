@@ -97,6 +97,7 @@ namespace CommonDomain.Persistence.EventStore
 			{
 				this.StampEventVersion(attempt);
 				this.eventStore.Write(attempt);
+				this.commitSequence[attempt.StreamId] = attempt.PreviousCommitSequence + 1;
 			}
 			catch (ConcurrencyException e)
 			{
@@ -104,7 +105,8 @@ namespace CommonDomain.Persistence.EventStore
 				if (this.conflictDetector.ConflictsWith((ICollection)attempt.Events, (ICollection)since.Events))
 					throw new ConflictingCommandException(ExceptionMessages.ConflictingCommand, e);
 
-				attempt.StreamRevision += since.StreamRevision + attempt.Events.Count;
+				attempt.PreviousCommitSequence = since.CommitSequence;
+				attempt.StreamRevision += since.Events.Count;
 				this.Persist(attempt);
 			}
 			catch (DuplicateCommitException)
