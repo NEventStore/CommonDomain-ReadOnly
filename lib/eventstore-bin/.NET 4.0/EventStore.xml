@@ -142,11 +142,6 @@
             Indicates the ability to store and retreive a stream of events.
             </summary>
     </member>
-    <member name="M:EventStore.IStoreEvents.Initialize">
-      <summary>
-            Initializes the event store, the underlying persistence schema, and ensures all undispatched commits are dispatched.
-            </summary>
-    </member>
     <member name="M:EventStore.IStoreEvents.ReadUntil(System.Guid,System.Int32)">
       <summary>
             Reads from the stream indicated from most recent snapshot, if any, up to and including the revision specified.
