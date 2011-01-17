@@ -189,7 +189,7 @@
             Represents a series of events which have been fully committed as a single unit and which apply to the stream indicated.
             </summary>
     </member>
-    <member name="M:EventStore.Persistence.Commit.#ctor(System.Guid,System.Int32,System.Guid,System.Int32,System.Collections.Generic.IDictionary{System.String,System.Object},System.Collections.Generic.ICollection{EventStore.EventMessage},System.Object)">
+    <member name="M:EventStore.Persistence.Commit.#ctor(System.Guid,System.Int32,System.Guid,System.Int32,System.Collections.Generic.Dictionary{System.String,System.Object},System.Collections.Generic.List{EventStore.EventMessage},System.Object)">
       <summary>
             Initializes a new instance of the Commit class.
             </summary>
