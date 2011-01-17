@@ -8,6 +8,7 @@ namespace CommonDomain.Persistence.EventStore
 	public class SagaEventStoreRepository : ISagaRepository
 	{
 		private const string SagaTypeHeader = "SagaType";
+		private const string UndispatchedMessageHeader = "UndispatchedMessage.";
 		private readonly IDictionary<Guid, int> commitSequence = new Dictionary<Guid, int>();
 		private readonly IStoreEvents eventStore;
 
@@ -56,8 +57,6 @@ namespace CommonDomain.Persistence.EventStore
 			if (saga == null)
 				throw new ArgumentNullException("saga", ExceptionMessages.NullArgument);
 
-			var events = saga.GetUncommittedEvents();
-
 			var attempt = new CommitAttempt
 			{
 				StreamId = saga.Id,
@@ -69,8 +68,12 @@ namespace CommonDomain.Persistence.EventStore
 			if (this.commitSequence.TryGetValue(attempt.StreamId, out previousCommitSequence))
 				attempt.PreviousCommitSequence = previousCommitSequence;
 
-			foreach (var @event in events)
+			foreach (var @event in saga.GetUncommittedEvents())
 				attempt.Events.Add(new EventMessage { Body = @event });
+
+			var i = 0;
+			foreach (var command in saga.GetUndispatchedMessages())
+				attempt.Headers[UndispatchedMessageHeader + i++] = command;
 
 			return attempt;
 		}
