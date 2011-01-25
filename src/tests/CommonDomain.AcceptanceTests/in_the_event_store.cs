@@ -18,15 +18,17 @@ namespace CommonDomain.AcceptanceTests
 	{
 		protected static IRepository repository;
 		protected static ICollection<IDomainEvent> publishedEvents;
+        protected static IStoreEvents eventStore;
+        protected static IPersistStreams engine;
 
 		Establish context = () =>
 		{
-			var engine = new InMemoryPersistenceEngine();
+			engine = new InMemoryPersistenceEngine();
 			engine.Initialize();
 		   
 			publishedEvents = new List<IDomainEvent>();
 
-			var eventStore = new OptimisticEventStore(engine, new SynchronousDispatcher(new FakeBus(publishedEvents), engine));
+			eventStore = new OptimisticEventStore(engine, new SynchronousDispatcher(new FakeBus(publishedEvents), engine));
 
 			repository = new EventStoreRepository(eventStore, new AggregateFactory(), new ReflectionVersionStamper(), new ConflictDetector());
 		};
