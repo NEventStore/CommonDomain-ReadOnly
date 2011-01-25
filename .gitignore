@@ -4,6 +4,7 @@ App.config
 Web.config
 *.user
 *.suo
+output
 _ReSharper.*
 *.Resharper
 *.Cache
