@@ -19,7 +19,7 @@ namespace CommonDomain.Persistence.EventStore
 
 		public TSaga GetById<TSaga>(Guid sagaId) where TSaga : class, ISaga, new()
 		{
-			var stream = this.eventStore.ReadUntil(sagaId, 0);
+			var stream = this.eventStore.ReadFromSnapshotUntil(sagaId, 0);
 			this.commitSequence[sagaId] = stream.CommitSequence;
 
 			return BuildSaga<TSaga>(stream);

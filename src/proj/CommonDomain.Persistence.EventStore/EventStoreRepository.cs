@@ -29,7 +29,7 @@ namespace CommonDomain.Persistence.EventStore
 
 		public TAggregate GetById<TAggregate>(Guid id, int versionToLoad) where TAggregate : class, IAggregate
 		{
-			var stream = this.eventStore.ReadUntil(id, versionToLoad);
+			var stream = this.eventStore.ReadFromSnapshotUntil(id, versionToLoad);
 			this.commitSequence[id] = stream.CommitSequence;
 			return this.BuildAggregate<TAggregate>(stream, versionToLoad);
 		}
@@ -104,7 +104,7 @@ namespace CommonDomain.Persistence.EventStore
 				var revisionBeforeAttempt = attempt.StreamRevision - attempt.Events.Count;
 				var since = this.eventStore.ReadFrom(attempt.StreamId, revisionBeforeAttempt + 1);
 
-				if (this.conflictDetector.ConflictsWith((ICollection)attempt.Events, (ICollection)since.Events))
+				if (this.conflictDetector.ConflictsWith(attempt.Events, (ICollection)since.Events))
 					throw new ConflictingCommandException(ExceptionMessages.ConflictingCommand, e);
 
 				attempt.StreamRevision += since.Events.Count;
@@ -123,7 +123,7 @@ namespace CommonDomain.Persistence.EventStore
 		private void StampEventVersion(CommitAttempt attempt)
 		{
 			var version = attempt.StreamRevision - attempt.Events.Count + 1;
-			this.stamper.SetVersion((ICollection)attempt.Events, version);
+			this.stamper.SetVersion(attempt.Events, version);
 		}
 	}
 }

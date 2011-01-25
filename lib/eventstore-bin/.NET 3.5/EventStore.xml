@@ -142,14 +142,9 @@
             Indicates the ability to store and retreive a stream of events.
             </summary>
     </member>
-    <member name="M:EventStore.IStoreEvents.Initialize">
+    <member name="M:EventStore.IStoreEvents.ReadFromSnapshotUntil(System.Guid,System.Int32)">
       <summary>
-            Initializes the event store, the underlying persistence schema, and ensures all undispatched commits are dispatched.
-            </summary>
-    </member>
-    <member name="M:EventStore.IStoreEvents.ReadUntil(System.Guid,System.Int32)">
-      <summary>
-            Reads from the stream indicated from most recent snapshot, if any, up to and including the revision specified.
+            Reads the stream indicated from most recent snapshot, if any, up to and including the revision specified.
             </summary>
       <param name="streamId">The stream from which the events will be read.</param>
       <param name="maxRevision">The maximum revision of the stream to be read.</param>
@@ -157,7 +152,7 @@
     </member>
     <member name="M:EventStore.IStoreEvents.ReadFrom(System.Guid,System.Int32)">
       <summary>
-            Reads from the stream indicated from the revision specified until the end of the stream.
+            Reads the stream indicated from the revision specified until the end of the stream.
             </summary>
       <param name="streamId">The stream from which the events will be read.</param>
       <param name="minRevision">The minimum revision of the stream to be read.</param>
@@ -324,7 +319,7 @@
             Initializes and prepares the storage for use, if not already performed.
             </summary>
     </member>
-    <member name="M:EventStore.Persistence.IPersistStreams.GetUntil(System.Guid,System.Int32)">
+    <member name="M:EventStore.Persistence.IPersistStreams.GetFromSnapshotUntil(System.Guid,System.Int32)">
       <summary>
             Gets the corresponding commits from the stream indicated starting at the most recent snapshot, if any,
             up to and including the revision specified sorted in ascending order--from oldest to newest.
@@ -341,6 +336,13 @@
       <param name="streamId">The stream from which the events will be read.</param>
       <param name="minRevision">The minimum revision of the stream to be read.</param>
       <returns>A series of committed events from the stream specified sorted in ascending order..</returns>
+    </member>
+    <member name="M:EventStore.Persistence.IPersistStreams.GetFrom(System.DateTime)">
+      <summary>
+            Gets all commits on or after from the specified starting time.
+            </summary>
+      <param name="start">The point in time at which to start.</param>
+      <returns>All commits that have occurred on or after the specified starting time.</returns>
     </member>
     <member name="M:EventStore.Persistence.IPersistStreams.Persist(EventStore.CommitAttempt)">
       <summary>
