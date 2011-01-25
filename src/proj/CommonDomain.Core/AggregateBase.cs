@@ -8,7 +8,7 @@ namespace CommonDomain.Core
 		where TEvent : class
 	{
 		private readonly ICollection<TEvent> uncommittedEvents = new LinkedList<TEvent>();
-		private readonly IRouteEvents<TEvent> registeredRoutes = new RegistrationEventRouter<TEvent>();
+		private readonly IRouteEvents<TEvent> registeredRoutes = new ConventionEventRouter<TEvent>();
 
 		protected AggregateBase()
 			: this(null)
