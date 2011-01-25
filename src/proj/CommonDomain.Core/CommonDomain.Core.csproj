@@ -43,7 +43,6 @@
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="AggregateBase.cs" />
-    <Compile Include="AggregateDynamic.cs" />
     <Compile Include="ConflictDetector.cs" />
     <Compile Include="ConventionEventRouter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
