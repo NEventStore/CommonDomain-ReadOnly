@@ -2,8 +2,6 @@ namespace CommonDomain.Core
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Linq;
-	using System.Reflection;
 
 	public class RegistrationEventRouter<TEvent> : IRouteEvents<TEvent>
 	{

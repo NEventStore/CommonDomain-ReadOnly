@@ -1,171 +1,176 @@
-using System;
-using CommonDomain.Core;
-using Machine.Specifications;
+#pragma warning disable 169
+// ReSharper disable InconsistentNaming
 
 namespace CommonDomain.AcceptanceTests
 {
-    [Subject("Routing Events")]
-    public class When_dispatching_a_message_with_a_registered_aggregate_that_has_a_matching_apply_method :
-        With_a_convention_event_router_and_registered_aggregate<object>
-    {
-        Because of = () =>
-            router.Dispatch(new MessageA());
+	using CommonDomain.Core;
+	using Machine.Specifications;
 
-        It should_call_the_apply_method = () =>
-            aggregate.ApplyForMessageACalled.ShouldBeTrue();
-    }
+	[Subject("Routing Events")]
+	public class When_dispatching_a_message_with_a_registered_aggregate_that_has_a_matching_apply_method :
+		With_a_convention_event_router_and_registered_aggregate<object>
+	{
+		Because of = () =>
+			router.Dispatch(new MessageA());
 
-    [Subject("Routing Events")]
-    public class When_dispatching_a_message_with_a_registered_aggregate_that_has_a_matching_apply_method_that_is_private :
-        With_a_convention_event_router_and_registered_aggregate<object>
-    {
-        Because of = () =>
-            router.Dispatch(new MessageB());
+		It should_call_the_apply_method = () =>
+			aggregate.ApplyForMessageACalled.ShouldBeTrue();
+	}
 
-        It should_call_the_apply_method = () =>
-            aggregate.ApplyForMessageBCalled.ShouldBeTrue();
-    }
+	[Subject("Routing Events")]
+	public class When_dispatching_a_message_with_a_registered_aggregate_that_has_a_matching_apply_method_that_is_private :
+		With_a_convention_event_router_and_registered_aggregate<object>
+	{
+		Because of = () =>
+			router.Dispatch(new MessageB());
 
-    [Subject("Routing Events")]
-    public class When_dispatching_a_message_with_a_registered_aggregate_that_has_a_matching_apply_method_that_is_static :
-        With_a_convention_event_router_and_registered_aggregate<object>
-    {
-        Establish context = () =>
-            MockAggregate.ApplyForMessageCCalled = false;
+		It should_call_the_apply_method = () =>
+			aggregate.ApplyForMessageBCalled.ShouldBeTrue();
+	}
 
-        Because of = () => router.Dispatch(new MessageC());
+	[Subject("Routing Events")]
+	public class When_dispatching_a_message_with_a_registered_aggregate_that_has_a_matching_apply_method_that_is_static :
+		With_a_convention_event_router_and_registered_aggregate<object>
+	{
+		Establish context = () =>
+			MockAggregate.ApplyForMessageCCalled = false;
 
-        It should_not_call_the_apply_method = () => MockAggregate.ApplyForMessageCCalled.ShouldBeFalse();
-    }
+		Because of = () => router.Dispatch(new MessageC());
 
-    [Subject("Routing Events")]
-    public class When_dispatching_a_message_with_a_registered_aggregate_that_has_a_matching_apply_method_with_multiple_parameters :
-        With_a_convention_event_router_and_registered_aggregate<object>
-    {
-        Because of = () => 
-            router.Dispatch(new MessageD());
+		It should_not_call_the_apply_method = () => MockAggregate.ApplyForMessageCCalled.ShouldBeFalse();
+	}
 
-        It should_not_call_the_apply_method = () => 
-            aggregate.ApplyForMessageDCalled.ShouldBeFalse();
-    }
+	[Subject("Routing Events")]
+	public class When_dispatching_a_message_with_a_registered_aggregate_that_has_a_matching_apply_method_with_multiple_parameters :
+		With_a_convention_event_router_and_registered_aggregate<object>
+	{
+		Because of = () => 
+			router.Dispatch(new MessageD());
 
-    [Subject("Routing Events")]
-    public class When_dispatching_a_message_with_a_registered_aggregate_that_has_a_matching_apply_method_that_does_not_return_void :
-        With_a_convention_event_router_and_registered_aggregate<object>
-    {
-        Because of = () => 
-            router.Dispatch(new MessageE());
+		It should_not_call_the_apply_method = () => 
+			aggregate.ApplyForMessageDCalled.ShouldBeFalse();
+	}
 
-        It should_not_call_the_apply_method = () => 
-            aggregate.ApplyForMessageECalled.ShouldBeFalse();
-    }
+	[Subject("Routing Events")]
+	public class When_dispatching_a_message_with_a_registered_aggregate_that_has_a_matching_apply_method_that_does_not_return_void :
+		With_a_convention_event_router_and_registered_aggregate<object>
+	{
+		Because of = () => 
+			router.Dispatch(new MessageE());
 
-    [Subject("Routing Events")]
-    public class When_dispatching_a_message_with_a_registered_aggregate_that_does_not_have_a_matching_apply_method :
-        With_a_convention_event_router_and_registered_aggregate<object>
-    {
-        Establish context = () =>
-            MockAggregate.ApplyForMessageCCalled = false;
+		It should_not_call_the_apply_method = () => 
+			aggregate.ApplyForMessageECalled.ShouldBeFalse();
+	}
 
-        Because of = () => router.Dispatch(new MessageF());
+	[Subject("Routing Events")]
+	public class When_dispatching_a_message_with_a_registered_aggregate_that_does_not_have_a_matching_apply_method :
+		With_a_convention_event_router_and_registered_aggregate<object>
+	{
+		Establish context = () =>
+			MockAggregate.ApplyForMessageCCalled = false;
 
-        It should_not_call_any_apply_methods = () =>
-        {
-            aggregate.ApplyForMessageACalled.ShouldBeFalse();
-            aggregate.ApplyForMessageBCalled.ShouldBeFalse();
-            MockAggregate.ApplyForMessageCCalled.ShouldBeFalse();
-        };
-    }
+		Because of = () => router.Dispatch(new MessageF());
 
-    [Subject("Routing Events")]
-    public class When_dispatching_a_message_with_a_registered_aggregate_that_has_a_matching_apply_method_and_a_manually_registered_handler :
-        With_a_convention_event_router_and_registered_aggregate<object>
-    {
-        static bool manualHandlerCalled;
+		It should_not_call_any_apply_methods = () =>
+		{
+			aggregate.ApplyForMessageACalled.ShouldBeFalse();
+			aggregate.ApplyForMessageBCalled.ShouldBeFalse();
+			MockAggregate.ApplyForMessageCCalled.ShouldBeFalse();
+		};
+	}
 
-        Establish context = () => 
-            router.Register<MessageA>(m => manualHandlerCalled = true);
+	[Subject("Routing Events")]
+	public class When_dispatching_a_message_with_a_registered_aggregate_that_has_a_matching_apply_method_and_a_manually_registered_handler :
+		With_a_convention_event_router_and_registered_aggregate<object>
+	{
+		static bool manualHandlerCalled;
 
-        Because of = () =>
-            router.Dispatch(new MessageA());
+		Establish context = () => 
+			router.Register<MessageA>(m => manualHandlerCalled = true);
 
-        It should_not_call_the_apply_method = () =>
-            aggregate.ApplyForMessageACalled.ShouldBeFalse();
+		Because of = () =>
+			router.Dispatch(new MessageA());
 
-        It should_call_the_manual_handler = () =>
-            aggregate.ApplyForMessageACalled.ShouldBeFalse();
-    }
-    
-    public class With_a_convention_event_router_and_registered_aggregate<TEvent>
-    {
-        protected static ConventionEventRouter<TEvent> router;
-        protected static MockAggregate aggregate;
+		It should_not_call_the_apply_method = () =>
+			aggregate.ApplyForMessageACalled.ShouldBeFalse();
 
-        Establish context = () =>
-        {
-            router = new ConventionEventRouter<TEvent>();
-            aggregate = new MockAggregate();
-            router.Register(aggregate);
-        };
-    }
+		It should_call_the_manual_handler = () =>
+			aggregate.ApplyForMessageACalled.ShouldBeFalse();
+	}
+	
+	public class With_a_convention_event_router_and_registered_aggregate<TEvent>
+	{
+		protected static ConventionEventRouter<TEvent> router;
+		protected static MockAggregate aggregate;
 
-    public class MockAggregate : AggregateBase<object>
-    {
-        public bool ApplyForMessageACalled { get; set; }
-        public bool ApplyForMessageBCalled { get; set; }
-        public static bool ApplyForMessageCCalled { get; set; }
-        public bool ApplyForMessageDCalled { get; set; }
-        public bool ApplyForMessageECalled { get; set; }
+		Establish context = () =>
+		{
+			router = new ConventionEventRouter<TEvent>();
+			aggregate = new MockAggregate();
+			router.Register(aggregate);
+		};
+	}
 
-        public void Apply(MessageA message)
-        {
-            ApplyForMessageACalled = true;
-        }
+	public class MockAggregate : AggregateBase<object>
+	{
+		public bool ApplyForMessageACalled { get; set; }
+		public bool ApplyForMessageBCalled { get; set; }
+		public static bool ApplyForMessageCCalled { get; set; }
+		public bool ApplyForMessageDCalled { get; set; }
+		public bool ApplyForMessageECalled { get; set; }
 
-        void Apply(MessageB message)
-        {
-            ApplyForMessageBCalled = true;
-        }
+		public void Apply(MessageA message)
+		{
+			this.ApplyForMessageACalled = true;
+		}
 
-        public static void Apply(MessageC message)
-        {
-            ApplyForMessageCCalled = true;
-        }
+		void Apply(MessageB message)
+		{
+			this.ApplyForMessageBCalled = true;
+		}
 
-        public void Apply(MessageD message, object otherParameter)
-        {
-            ApplyForMessageCCalled = true;
-        }
+		public static void Apply(MessageC message)
+		{
+			ApplyForMessageCCalled = true;
+		}
 
-        public int Apply(MessageE message)
-        {
-            ApplyForMessageCCalled = true;
+		public void Apply(MessageD message, object otherParameter)
+		{
+			ApplyForMessageCCalled = true;
+		}
 
-            return 1;
-        }
-    }
+		public int Apply(MessageE message)
+		{
+			ApplyForMessageCCalled = true;
 
-    public class MessageA
-    {
-    }
+			return 1;
+		}
+	}
 
-    public class MessageB
-    {
-    }
+	public class MessageA
+	{
+	}
 
-    public class MessageC
-    {
-    }
+	public class MessageB
+	{
+	}
 
-    public class MessageD
-    {
-    }
+	public class MessageC
+	{
+	}
 
-    public class MessageE
-    {
-    }
+	public class MessageD
+	{
+	}
 
-    public class MessageF
-    {
-    }
+	public class MessageE
+	{
+	}
+
+	public class MessageF
+	{
+	}
 }
+
+// ReSharper enable InconsistentNaming
+#pragma warning restore 169
