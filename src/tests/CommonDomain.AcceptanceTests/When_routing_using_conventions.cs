@@ -3,7 +3,7 @@
 
 namespace CommonDomain.AcceptanceTests
 {
-	using CommonDomain.Core;
+	using Core;
 	using Machine.Specifications;
 
 	[Subject("Routing Events")]
@@ -83,10 +83,8 @@ namespace CommonDomain.AcceptanceTests
 	public class When_dispatching_a_message_with_a_registered_aggregate_that_has_a_matching_apply_method_and_a_manually_registered_handler :
 		With_a_convention_event_router_and_registered_aggregate<object>
 	{
-		static bool manualHandlerCalled;
-
 		Establish context = () => 
-			router.Register<MessageA>(m => manualHandlerCalled = true);
+			router.Register<MessageA>(m => { });
 
 		Because of = () =>
 			router.Dispatch(new MessageA());
@@ -124,7 +122,7 @@ namespace CommonDomain.AcceptanceTests
 			this.ApplyForMessageACalled = true;
 		}
 
-		void Apply(MessageB message)
+		protected virtual void Apply(MessageB message)
 		{
 			this.ApplyForMessageBCalled = true;
 		}

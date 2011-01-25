@@ -18,8 +18,8 @@ namespace CommonDomain.AcceptanceTests
 	{
 		protected static IRepository repository;
 		protected static ICollection<IDomainEvent> publishedEvents;
-        protected static IStoreEvents eventStore;
-        protected static IPersistStreams engine;
+		protected static IStoreEvents eventStore;
+		protected static IPersistStreams engine;
 
 		Establish context = () =>
 		{

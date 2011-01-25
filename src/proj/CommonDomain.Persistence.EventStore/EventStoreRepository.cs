@@ -98,20 +98,20 @@ namespace CommonDomain.Persistence.EventStore
 				this.StampEventVersion(attempt);
 				this.eventStore.Write(attempt);
 				this.commitSequence[attempt.StreamId] = attempt.PreviousCommitSequence + 1;
-			}            
-            catch (ConcurrencyException e)
-            {
-                var revisionBeforeAttempt = attempt.StreamRevision - attempt.Events.Count;
-                var since = this.eventStore.ReadFrom(attempt.StreamId, revisionBeforeAttempt + 1);
+			}
+			catch (ConcurrencyException e)
+			{
+				var revisionBeforeAttempt = attempt.StreamRevision - attempt.Events.Count;
+				var since = this.eventStore.ReadFrom(attempt.StreamId, revisionBeforeAttempt + 1);
 
-                if (this.conflictDetector.ConflictsWith((ICollection)attempt.Events, (ICollection)since.Events))
-                    throw new ConflictingCommandException(ExceptionMessages.ConflictingCommand, e);
+				if (this.conflictDetector.ConflictsWith((ICollection)attempt.Events, (ICollection)since.Events))
+					throw new ConflictingCommandException(ExceptionMessages.ConflictingCommand, e);
 
-                attempt.StreamRevision += since.Events.Count;
-                attempt.PreviousCommitSequence = since.CommitSequence;
+				attempt.StreamRevision += since.Events.Count;
+				attempt.PreviousCommitSequence = since.CommitSequence;
 
-                this.Persist(attempt);
-            }
+				this.Persist(attempt);
+			}
 			catch (DuplicateCommitException)
 			{
 			}
