@@ -39,7 +39,6 @@ echo Copying
 mkdir output\doc
 copy doc\*.* output\doc
 copy "lib\eventstore-bin\doc\license.txt" "output\doc\EventStore license.txt"
-copy "lib\eventstore-bin\doc\protobuf-net license.txt" "output\doc\protobuf-net license.txt"
 
 echo Cleaning
 msbuild /nologo /verbosity:quiet src/CommonDomain.sln /p:Configuration=%TARGET_CONFIG% /t:Clean
