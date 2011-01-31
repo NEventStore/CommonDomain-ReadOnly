@@ -2,14 +2,15 @@ namespace CommonDomain.Persistence.EventStore
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Linq;
 	using global::EventStore;
 	using global::EventStore.Persistence;
 
-	public class SagaEventStoreRepository : ISagaRepository
+	public class SagaEventStoreRepository : ISagaRepository, IDisposable
 	{
 		private const string SagaTypeHeader = "SagaType";
 		private const string UndispatchedMessageHeader = "UndispatchedMessage.";
-		private readonly IDictionary<Guid, int> commitSequence = new Dictionary<Guid, int>();
+		private readonly IDictionary<Guid, IEventStream> streams = new Dictionary<Guid, IEventStream>();
 		private readonly IStoreEvents eventStore;
 
 		public SagaEventStoreRepository(IStoreEvents eventStore)
@@ -17,17 +18,51 @@ namespace CommonDomain.Persistence.EventStore
 			this.eventStore = eventStore;
 		}
 
+		public void Dispose()
+		{
+			this.Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing)
+				return;
+
+			lock (this.streams)
+			{
+				foreach (var stream in this.streams)
+					stream.Value.Dispose();
+
+				this.streams.Clear();
+			}
+		}
+
 		public TSaga GetById<TSaga>(Guid sagaId) where TSaga : class, ISaga, new()
 		{
-			var stream = this.eventStore.ReadFromSnapshotUntil(sagaId, 0);
-			this.commitSequence[sagaId] = stream.CommitSequence;
-
-			return BuildSaga<TSaga>(stream);
+			return BuildSaga<TSaga>(this.OpenStream(sagaId));
 		}
-		private static TSaga BuildSaga<TSaga>(CommittedEventStream stream) where TSaga : class, ISaga, new()
+		private IEventStream OpenStream(Guid sagaId)
+		{
+			IEventStream stream;
+			if (this.streams.TryGetValue(sagaId, out stream))
+				return stream;
+
+			try
+			{
+				stream = this.eventStore.OpenStream(sagaId, 0, int.MaxValue);
+			}
+			catch (StreamNotFoundException)
+			{
+				stream = this.eventStore.CreateStream(sagaId);
+			}
+
+			return this.streams[sagaId] = stream;
+		}
+
+		private static TSaga BuildSaga<TSaga>(IEventStream stream) where TSaga : class, ISaga, new()
 		{
 			var saga = new TSaga();
-			foreach (var @event in stream.Events)
+			foreach (var @event in stream.CommittedEvents.Select(x => x.Body))
 				saga.Transition(@event);
 
 			saga.ClearUncommittedEvents();
@@ -36,61 +71,57 @@ namespace CommonDomain.Persistence.EventStore
 			return saga;
 		}
 
-		public void Save(ISaga saga, Guid commitId, Action<IDictionary<string, object>> headers)
-		{
-			var attempt = this.BuildAttempt(saga, commitId);
-			if (attempt.Events.Count == 0)
-				throw new NotSupportedException(ExceptionMessages.NoWork);
-
-			if (headers != null)
-				headers(attempt.Headers);
-
-			attempt.Headers[SagaTypeHeader] = saga.GetType().FullName;
-
-			this.Persist(attempt);
-
-			saga.ClearUndispatchedMessages();
-			saga.ClearUncommittedEvents();
-		}
-		private CommitAttempt BuildAttempt(ISaga saga, Guid commitId)
+		public void Save(ISaga saga, Guid commitId, Action<IDictionary<string, object>> updateHeaders)
 		{
 			if (saga == null)
 				throw new ArgumentNullException("saga", ExceptionMessages.NullArgument);
 
-			var attempt = new CommitAttempt
-			{
-				StreamId = saga.Id,
-				StreamRevision = saga.Version,
-				CommitId = commitId
-			};
+			var stream = this.PrepareStream(saga);
+			var headers = PrepareHeaders(saga, updateHeaders);
 
-			int previousCommitSequence;
-			if (this.commitSequence.TryGetValue(attempt.StreamId, out previousCommitSequence))
-				attempt.PreviousCommitSequence = previousCommitSequence;
+			Persist(stream, commitId, headers);
+
+			saga.ClearUncommittedEvents();
+			saga.ClearUndispatchedMessages();
+		}
+		private IEventStream PrepareStream(ISaga saga)
+		{
+			IEventStream stream;
+			if (!this.streams.TryGetValue(saga.Id, out stream))
+				this.streams[saga.Id] = stream = this.eventStore.CreateStream(saga.Id);
 
 			foreach (var @event in saga.GetUncommittedEvents())
-				attempt.Events.Add(new EventMessage { Body = @event });
+				stream.Add(@event);
+
+			return stream;
+		}
+		private static Dictionary<string, object> PrepareHeaders(ISaga saga, Action<IDictionary<string, object>> updateHeaders)
+		{
+			var headers = new Dictionary<string, object>();
+
+			headers[SagaTypeHeader] = saga.GetType().FullName;
+			if (updateHeaders != null)
+				updateHeaders(headers);
 
 			var i = 0;
 			foreach (var command in saga.GetUndispatchedMessages())
-				attempt.Headers[UndispatchedMessageHeader + i++] = command;
+				headers[UndispatchedMessageHeader + i++] = command;
 
-			return attempt;
+			return headers;
 		}
-		private void Persist(CommitAttempt stream)
+		private static void Persist(IEventStream stream, Guid commitId, Dictionary<string, object> headers)
 		{
 			try
 			{
-				// any optimistic concurrency exceptions means we should try again
-				this.eventStore.Write(stream);
-			}
-			catch (PersistenceEngineException e)
-			{
-				throw new PersistenceException(e.Message, e);
+				stream.CommitChanges(commitId, headers);
 			}
 			catch (DuplicateCommitException)
 			{
 			}
+			catch (StorageException e)
+			{
+				throw new PersistenceException(e.Message, e);
+			}	
 		}
 	}
 }

@@ -4,52 +4,6 @@
     <name>EventStore</name>
   </assembly>
   <members>
-    <member name="T:EventStore.CommittedEventStream">
-      <summary>
-            Represents a series of events which have been fully committed and applied to the stream indicated.
-            </summary>
-    </member>
-    <member name="M:EventStore.CommittedEventStream.#ctor(System.Guid,System.Int32,System.Int32,System.Collections.Generic.ICollection{System.Object},System.Collections.Generic.ICollection{System.Guid},System.Object)">
-      <summary>
-            Initializes a new instance of the CommittedEventStream class.
-            </summary>
-      <param name="streamId">The value which uniquely identifies the stream to which the series of committed events apply.</param>
-      <param name="streamRevision">The value indicating the most recent revision of the stream for the events retreived.</param>
-      <param name="commitSequence">The value indicating the most recent commit applied to the stream for the events retreived.</param>
-      <param name="events">The series of committed events.</param>
-      <param name="commitIdentifiers">The set of values which uniquely identify the commits associated with set of events.</param>
-      <param name="snapshot">The snapshot, if any, containing a serialized revision of the stream upon which the events provided can be applied.</param>
-    </member>
-    <member name="P:EventStore.CommittedEventStream.StreamId">
-      <summary>
-            Gets a value which uniquely identifies the stream to which the series of committed events apply.
-            </summary>
-    </member>
-    <member name="P:EventStore.CommittedEventStream.StreamRevision">
-      <summary>
-            Gets a value indicating the most recent revision of the stream for the events retreived.
-            </summary>
-    </member>
-    <member name="P:EventStore.CommittedEventStream.CommitSequence">
-      <summary>
-            Gets a value indicating the most recent commit applied to the stream for the events retreived.
-            </summary>
-    </member>
-    <member name="P:EventStore.CommittedEventStream.Events">
-      <summary>
-            Gets the series of committed events.
-            </summary>
-    </member>
-    <member name="P:EventStore.CommittedEventStream.CommitIdentifiers">
-      <summary>
-            Gets the set of values which uniquely identify the commits associated with set of events.
-            </summary>
-    </member>
-    <member name="P:EventStore.CommittedEventStream.Snapshot">
-      <summary>
-            Gets the snapshot, if any, containing a serialized revision of the stream upon which the events provided can be applied.
-            </summary>
-    </member>
     <member name="T:EventStore.ConcurrencyException">
       <summary>
             Represents an optimistic concurrency conflict between multiple writers.
@@ -59,6 +13,12 @@
       <summary>
             Initializes a new instance of the ConcurrencyException class.
             </summary>
+    </member>
+    <member name="M:EventStore.ConcurrencyException.#ctor(System.Collections.Generic.IEnumerable{EventStore.Commit})">
+      <summary>
+            Initializes a new instance of the ConcurrencyException class.
+            </summary>
+      <param name="commits">The commits discovered from the concurrency exception.</param>
     </member>
     <member name="M:EventStore.ConcurrencyException.#ctor(System.String)">
       <summary>
@@ -80,89 +40,187 @@
       <param name="info">The SerializationInfo that holds the serialized object data of the exception being thrown.</param>
       <param name="context">The StreamingContext that contains contextual information about the source or destination.</param>
     </member>
-    <member name="T:EventStore.CommitAttempt">
+    <member name="P:EventStore.ConcurrencyException.Commits">
       <summary>
-            Represents a series of events to be committed as a single unit and which apply to the stream indicated.
+            Gets the collection of commits that caused the concurrency exception to occur.
             </summary>
     </member>
-    <member name="M:EventStore.CommitAttempt.#ctor">
+    <member name="T:EventStore.StreamNotFoundException">
       <summary>
-            Initializes a new instance of the CommitAttempt class.
+            Represents an attempt to commit the same information more than once.
             </summary>
     </member>
-    <member name="M:EventStore.CommitAttempt.ToCommit">
+    <member name="M:EventStore.StreamNotFoundException.#ctor">
       <summary>
-            Converts the attempt into a commit.
-            </summary>
-      <returns>A fully populated object instance of the <see cref="T:EventStore.Persistence.Commit" /> class.</returns>
-    </member>
-    <member name="P:EventStore.CommitAttempt.StreamId">
-      <summary>
-            Gets or sets the value which uniquely identifies the stream to which the commit attempt belongs.
+            Initializes a new instance of the StreamNotFoundException class.
             </summary>
     </member>
-    <member name="P:EventStore.CommitAttempt.StreamRevision">
+    <member name="M:EventStore.StreamNotFoundException.#ctor(System.String)">
       <summary>
-            Gets or sets the value which indicates the new head revision of the stream to which this commit attempt applies.
+            Initializes a new instance of the StreamNotFoundException class.
             </summary>
+      <param name="message">The message that describes the error.</param>
     </member>
-    <member name="P:EventStore.CommitAttempt.CommitId">
+    <member name="M:EventStore.StreamNotFoundException.#ctor(System.String,System.Exception)">
       <summary>
-            Gets or sets the value which uniquely identifies the commit within the stream.
+            Initializes a new instance of the StreamNotFoundException class.
             </summary>
+      <param name="message">The message that describes the error.</param>
+      <param name="innerException">The message that is the cause of the current exception.</param>
     </member>
-    <member name="P:EventStore.CommitAttempt.PreviousCommitSequence">
+    <member name="M:EventStore.StreamNotFoundException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
       <summary>
-            Gets or sets the value which indicates the most recent, known committed sequence for the stream to which this commit attempt applies.
+            Initializes a new instance of the StreamNotFoundException class.
             </summary>
-    </member>
-    <member name="P:EventStore.CommitAttempt.Headers">
-      <summary>
-            Gets the metadata which provides additional, unstructured information about this commit attempt.
-            </summary>
-    </member>
-    <member name="P:EventStore.CommitAttempt.Events">
-      <summary>
-            Gets the collection of event messages to be committed as a single unit.
-            </summary>
+      <param name="info">The SerializationInfo that holds the serialized object data of the exception being thrown.</param>
+      <param name="context">The StreamingContext that contains contextual information about the source or destination.</param>
     </member>
     <member name="T:EventStore.Dispatcher.IDispatchCommits">
       <summary>
             Indicates the ability to dispatch or publish all messages associated with a particular commit.
             </summary>
     </member>
-    <member name="M:EventStore.Dispatcher.IDispatchCommits.Dispatch(EventStore.Persistence.Commit)">
+    <member name="M:EventStore.Dispatcher.IDispatchCommits.Dispatch(EventStore.Commit)">
       <summary>
             Dispatches the series of messages contained within the commit provided to all interested parties.
             </summary>
       <param name="commit">The commit representing the series of messages to dispatch.</param>
+    </member>
+    <member name="T:EventStore.ICommitEvents">
+      <summary>
+            Indicates the ability to commit events and access events to and from a given stream.
+            </summary>
+    </member>
+    <member name="M:EventStore.ICommitEvents.GetFrom(System.Guid,System.Int32,System.Int32)">
+      <summary>
+            Gets the corresponding commits from the stream indicated starting at the revision specified until the
+            end of the stream sorted in ascending order--from oldest to newest.
+            </summary>
+      <param name="streamId">The stream from which the events will be read.</param>
+      <param name="minRevision">The minimum revision of the stream to be read.</param>
+      <param name="maxRevision">The maximum revision of the stream to be read.</param>
+      <returns>A series of committed events from the stream specified sorted in ascending order..</returns>
+      <exception cref="T:EventStore.Persistence.StorageException" />
+    </member>
+    <member name="M:EventStore.ICommitEvents.Commit(EventStore.Commit)">
+      <summary>
+            Writes the to-be-commited events provided to the underlying persistence mechanism.
+            </summary>
+      <param name="attempt">The series of events and associated metadata to be commited.</param>
+      <exception cref="T:EventStore.ConcurrencyException" />
+      <exception cref="T:EventStore.Persistence.StorageException" />
+    </member>
+    <member name="T:EventStore.IEventStream">
+      <summary>
+            Indicates the ability to track a series of events and commit them to durable storage.
+            </summary>
+      <remarks>
+            This class is single threaded and should not be shared between threads.
+            </remarks>
+    </member>
+    <member name="M:EventStore.IEventStream.Add(EventStore.EventMessage[])">
+      <summary>
+            Adds the event messages provided to the session to be tracked.
+            </summary>
+      <param name="uncommittedEvents">The events to be tracked.</param>
+    </member>
+    <member name="M:EventStore.IEventStream.Add(System.Object[])">
+      <summary>
+            Adds the event messages provided to the session to be tracked.
+            </summary>
+      <param name="uncommittedEvents">The events to be tracked.</param>
+    </member>
+    <member name="M:EventStore.IEventStream.CommitChanges(System.Guid,System.Collections.Generic.Dictionary{System.String,System.Object})">
+      <summary>
+            Commits the changes to durable storage.
+            </summary>
+      <param name="commitId">The value which uniquely identifies the commit.</param>
+      <param name="headers">Any optional metadata which belongs to the event being committed.</param>
+      <exception cref="T:EventStore.DuplicateCommitException" />
+      <exception cref="T:EventStore.ConcurrencyException" />
+      <exception cref="T:EventStore.Persistence.StorageException" />
+    </member>
+    <member name="M:EventStore.IEventStream.ClearChanges">
+      <summary>
+            Clears the uncommitted changes.
+            </summary>
+    </member>
+    <member name="P:EventStore.IEventStream.StreamId">
+      <summary>
+            Gets the value which uniquely identifies the stream to which the stream belongs.
+            </summary>
+    </member>
+    <member name="P:EventStore.IEventStream.StreamRevision">
+      <summary>
+            Gets the value which indiciates the most recent committed revision of event stream.
+            </summary>
+    </member>
+    <member name="P:EventStore.IEventStream.CommitSequence">
+      <summary>
+            Gets the value which indicates the most recent committed sequence identifier of the event stream.
+            </summary>
+    </member>
+    <member name="P:EventStore.IEventStream.CommittedEvents">
+      <summary>
+            Gets the collection of events which have been successfully persisted to durable storage.
+            </summary>
+    </member>
+    <member name="P:EventStore.IEventStream.UncommittedEvents">
+      <summary>
+            Gets the collection of yet-to-be-committed events that have not yet been persisted to durable storage.
+            </summary>
+    </member>
+    <member name="T:EventStore.IAccessSnapshots">
+      <summary>
+            Indicates the ability to get or retrieve a snapshot for a given stream.
+            </summary>
+    </member>
+    <member name="M:EventStore.IAccessSnapshots.GetSnapshot(System.Guid,System.Int32)">
+      <summary>
+            Gets the most recent snapshot which was taken on or before the revision indicated.
+            </summary>
+      <param name="streamId">The stream to be searched for a snapshot.</param>
+      <param name="maxRevision">The maximum revision possible for the desired snapshot.</param>
+      <returns>If found, it returns the snapshot; otherwise null is returned.</returns>
+      <exception cref="T:EventStore.Persistence.StorageException" />
+    </member>
+    <member name="M:EventStore.IAccessSnapshots.AddSnapshot(EventStore.Snapshot)">
+      <summary>
+            Adds the snapshot provided to the stream indicated.
+            </summary>
+      <param name="snapshot">The snapshot to save.</param>
+      <returns>If the snapshot was added, returns true; otherwise false.</returns>
+      <exception cref="T:EventStore.Persistence.StorageException" />
     </member>
     <member name="T:EventStore.IStoreEvents">
       <summary>
             Indicates the ability to store and retreive a stream of events.
             </summary>
     </member>
-    <member name="M:EventStore.IStoreEvents.ReadFromSnapshotUntil(System.Guid,System.Int32)">
+    <member name="M:EventStore.IStoreEvents.CreateStream(System.Guid)">
       <summary>
-            Reads the stream indicated from most recent snapshot, if any, up to and including the revision specified.
+            Creates a new stream.
             </summary>
-      <param name="streamId">The stream from which the events will be read.</param>
-      <param name="maxRevision">The maximum revision of the stream to be read.</param>
-      <returns>A series of committed events from the stream specified.</returns>
+      <param name="streamId">The value which uniquely identifies the stream to be created.</param>
+      <returns>An empty stream.</returns>
     </member>
-    <member name="M:EventStore.IStoreEvents.ReadFrom(System.Guid,System.Int32)">
+    <member name="M:EventStore.IStoreEvents.OpenStream(System.Guid,System.Int32,System.Int32)">
       <summary>
-            Reads the stream indicated from the revision specified until the end of the stream.
+            Reads the stream indicated from the minimum revision specified up to the maximum revision specified.
             </summary>
-      <param name="streamId">The stream from which the events will be read.</param>
+      <param name="streamId">The value which uniquely identifies the stream from which the events will be read.</param>
       <param name="minRevision">The minimum revision of the stream to be read.</param>
-      <returns>A series of committed events from the stream specified.</returns>
+      <param name="maxRevision">The maximum revision of the stream to be read.</param>
+      <returns>A series of committed events represented as a stream.</returns>
+      <exception cref="T:EventStore.Persistence.StorageException" />
     </member>
-    <member name="M:EventStore.IStoreEvents.Write(EventStore.CommitAttempt)">
+    <member name="M:EventStore.IStoreEvents.OpenStream(EventStore.Snapshot,System.Int32)">
       <summary>
-            Writes the to-be-commited events provided to the underlying storage infrastructure.
+            Reads the stream indicated from the point of the snapshot forward until the maximum revision specified.
             </summary>
-      <param name="attempt">The series of events and associated metadata to be commited.</param>
+      <param name="snapshot">The snapshot of the stream to be read.</param>
+      <param name="maxRevision">The maximum revision of the stream to be read.</param>
+      <returns>A series of committed events represented as a stream.</returns>
     </member>
     <member name="T:EventStore.EventMessage">
       <summary>
@@ -184,12 +242,12 @@
             Gets or sets the actual event message body.
             </summary>
     </member>
-    <member name="T:EventStore.Persistence.Commit">
+    <member name="T:EventStore.Commit">
       <summary>
             Represents a series of events which have been fully committed as a single unit and which apply to the stream indicated.
             </summary>
     </member>
-    <member name="M:EventStore.Persistence.Commit.#ctor(System.Guid,System.Int32,System.Guid,System.Int32,System.Collections.Generic.Dictionary{System.String,System.Object},System.Collections.Generic.List{EventStore.EventMessage},System.Object)">
+    <member name="M:EventStore.Commit.#ctor(System.Guid,System.Int32,System.Guid,System.Int32,System.Collections.Generic.Dictionary{System.String,System.Object},System.Collections.Generic.List{EventStore.EventMessage})">
       <summary>
             Initializes a new instance of the Commit class.
             </summary>
@@ -199,54 +257,53 @@
       <param name="commitSequence">The value which indicates the sequence (or position) in the stream to which this commit applies.</param>
       <param name="headers">The metadata which provides additional, unstructured information about this commit.</param>
       <param name="events">The collection of event messages to be committed as a single unit.</param>
-      <param name="snapshot">The snapshot, if any, which represents a materialization of the stream at the last event of the commit.</param>
     </member>
-    <member name="M:EventStore.Persistence.Commit.Equals(System.Object)">
+    <member name="M:EventStore.Commit.#ctor">
+      <summary>
+            Initializes a new instance of the Commit class.
+            </summary>
+    </member>
+    <member name="M:EventStore.Commit.Equals(System.Object)">
       <summary>
             Determines whether the specified object is equal to the current object.
             </summary>
       <param name="obj">The object to compare with the current object.</param>
       <returns>If the two objects are equal, returns true; otherwise false.</returns>
     </member>
-    <member name="M:EventStore.Persistence.Commit.GetHashCode">
+    <member name="M:EventStore.Commit.GetHashCode">
       <summary>
             Returns the hash code for this instance.
             </summary>
       <returns>The hash code for this instance.</returns>
     </member>
-    <member name="P:EventStore.Persistence.Commit.StreamId">
+    <member name="P:EventStore.Commit.StreamId">
       <summary>
             Gets the value which uniquely identifies the stream to which the commit belongs.
             </summary>
     </member>
-    <member name="P:EventStore.Persistence.Commit.StreamRevision">
+    <member name="P:EventStore.Commit.StreamRevision">
       <summary>
             Gets the value which indicates the revision of the most recent event in the stream to which this commit applies.
             </summary>
     </member>
-    <member name="P:EventStore.Persistence.Commit.CommitId">
+    <member name="P:EventStore.Commit.CommitId">
       <summary>
             Gets the value which uniquely identifies the commit within the stream.
             </summary>
     </member>
-    <member name="P:EventStore.Persistence.Commit.CommitSequence">
+    <member name="P:EventStore.Commit.CommitSequence">
       <summary>
             Gets the value which indicates the sequence (or position) in the stream to which this commit applies.
             </summary>
     </member>
-    <member name="P:EventStore.Persistence.Commit.Headers">
+    <member name="P:EventStore.Commit.Headers">
       <summary>
             Gets the metadata which provides additional, unstructured information about this commit.
             </summary>
     </member>
-    <member name="P:EventStore.Persistence.Commit.Events">
+    <member name="P:EventStore.Commit.Events">
       <summary>
             Gets the collection of event messages to be committed as a single unit.
-            </summary>
-    </member>
-    <member name="P:EventStore.Persistence.Commit.Snapshot">
-      <summary>
-            Gets the snapshot, if any, which represents a materialization of the stream at the last event of the commit.
             </summary>
     </member>
     <member name="T:EventStore.Persistence.IPersistenceFactory">
@@ -318,24 +375,7 @@
       <summary>
             Initializes and prepares the storage for use, if not already performed.
             </summary>
-    </member>
-    <member name="M:EventStore.Persistence.IPersistStreams.GetFromSnapshotUntil(System.Guid,System.Int32)">
-      <summary>
-            Gets the corresponding commits from the stream indicated starting at the most recent snapshot, if any,
-            up to and including the revision specified sorted in ascending order--from oldest to newest.
-            </summary>
-      <param name="streamId">The stream from which the events will be read.</param>
-      <param name="maxRevision">The maximum revision of the stream to be read.</param>
-      <returns>A series of committed events from the stream specified sorted in ascending order.</returns>
-    </member>
-    <member name="M:EventStore.Persistence.IPersistStreams.GetFrom(System.Guid,System.Int32)">
-      <summary>
-            Gets the corresponding commits from the stream indicated starting at the revision specified until the
-            end of the stream sorted in ascending order--from oldest to newest.
-            </summary>
-      <param name="streamId">The stream from which the events will be read.</param>
-      <param name="minRevision">The minimum revision of the stream to be read.</param>
-      <returns>A series of committed events from the stream specified sorted in ascending order..</returns>
+      <exception cref="T:EventStore.Persistence.StorageException" />
     </member>
     <member name="M:EventStore.Persistence.IPersistStreams.GetFrom(System.DateTime)">
       <summary>
@@ -343,24 +383,21 @@
             </summary>
       <param name="start">The point in time at which to start.</param>
       <returns>All commits that have occurred on or after the specified starting time.</returns>
-    </member>
-    <member name="M:EventStore.Persistence.IPersistStreams.Persist(EventStore.CommitAttempt)">
-      <summary>
-            Writes the to-be-commited events provided to the underlying persistence mechanism.
-            </summary>
-      <param name="uncommitted">The series of events and associated metadata to be commited.</param>
+      <exception cref="T:EventStore.Persistence.StorageException" />
     </member>
     <member name="M:EventStore.Persistence.IPersistStreams.GetUndispatchedCommits">
       <summary>
             Gets a set of commits that has not yet been dispatched.
             </summary>
       <returns>The set of commits to be dispatched.</returns>
+      <exception cref="T:EventStore.Persistence.StorageException" />
     </member>
-    <member name="M:EventStore.Persistence.IPersistStreams.MarkCommitAsDispatched(EventStore.Persistence.Commit)">
+    <member name="M:EventStore.Persistence.IPersistStreams.MarkCommitAsDispatched(EventStore.Commit)">
       <summary>
             Marks the commit specified as dispatched.
             </summary>
       <param name="commit">The commit to be marked as dispatched.</param>
+      <exception cref="T:EventStore.Persistence.StorageException" />
     </member>
     <member name="M:EventStore.Persistence.IPersistStreams.GetStreamsToSnapshot(System.Int32)">
       <summary>
@@ -368,41 +405,34 @@
             </summary>
       <param name="maxThreshold">The maximum difference between the head and most recent snapshot revisions.</param>
       <returns>The streams for which the head and snapshot revisions differ by at least the threshold specified.</returns>
+      <exception cref="T:EventStore.Persistence.StorageException" />
     </member>
-    <member name="M:EventStore.Persistence.IPersistStreams.AddSnapshot(System.Guid,System.Int32,System.Object)">
-      <summary>
-            Adds the snapshot provided to the stream indicated the commit sequence specified.
-            </summary>
-      <param name="streamId">The value which uniquely identifies the stream to which the snapshot applies.</param>
-      <param name="streamRevision">The position at which the snapshot applies.</param>
-      <param name="snapshot">The snapshot or materialized view of the stream at the revision indicated.</param>
-    </member>
-    <member name="T:EventStore.Persistence.PersistenceEngineException">
+    <member name="T:EventStore.Persistence.StorageException">
       <summary>
             Represents a general failure of the storage engine or persistence infrastructure.
             </summary>
     </member>
-    <member name="M:EventStore.Persistence.PersistenceEngineException.#ctor">
+    <member name="M:EventStore.Persistence.StorageException.#ctor">
       <summary>
-            Initializes a new instance of the PersistenceEngineException class.
+            Initializes a new instance of the StorageException class.
             </summary>
     </member>
-    <member name="M:EventStore.Persistence.PersistenceEngineException.#ctor(System.String)">
+    <member name="M:EventStore.Persistence.StorageException.#ctor(System.String)">
       <summary>
-            Initializes a new instance of the PersistenceEngineException class.
+            Initializes a new instance of the StorageException class.
             </summary>
       <param name="message">The message that describes the error.</param>
     </member>
-    <member name="M:EventStore.Persistence.PersistenceEngineException.#ctor(System.String,System.Exception)">
+    <member name="M:EventStore.Persistence.StorageException.#ctor(System.String,System.Exception)">
       <summary>
-            Initializes a new instance of the PersistenceEngineException class.
+            Initializes a new instance of the StorageException class.
             </summary>
       <param name="message">The message that describes the error.</param>
       <param name="innerException">The message that is the cause of the current exception.</param>
     </member>
-    <member name="M:EventStore.Persistence.PersistenceEngineException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+    <member name="M:EventStore.Persistence.StorageException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
       <summary>
-            Initializes a new instance of the PersistenceEngineException class.
+            Initializes a new instance of the StorageException class.
             </summary>
       <param name="info">The SerializationInfo that holds the serialized object data of the exception being thrown.</param>
       <param name="context">The StreamingContext that contains contextual information about the source or destination.</param>
@@ -472,6 +502,39 @@
     <member name="P:EventStore.Persistence.StreamHead.SnapshotRevision">
       <summary>
             Gets the value which indicates the revision at which the last snapshot was taken.
+            </summary>
+    </member>
+    <member name="T:EventStore.Snapshot">
+      <summary>
+            Represents a materialized view of a stream at specific revision.
+            </summary>
+    </member>
+    <member name="M:EventStore.Snapshot.#ctor(System.Guid,System.Int32,System.Object)">
+      <summary>
+            Initializes a new instance of the Snapshot class.
+            </summary>
+      <param name="streamId">The value which uniquely identifies the stream to which the snapshot applies.</param>
+      <param name="streamRevision">The position at which the snapshot applies.</param>
+      <param name="payload">The snapshot or materialized view of the stream at the revision indicated.</param>
+    </member>
+    <member name="M:EventStore.Snapshot.#ctor">
+      <summary>
+            Initializes a new instance of the Snapshot class.
+            </summary>
+    </member>
+    <member name="P:EventStore.Snapshot.StreamId">
+      <summary>
+            Gets the value which uniquely identifies the stream to which the snapshot applies.
+            </summary>
+    </member>
+    <member name="P:EventStore.Snapshot.StreamRevision">
+      <summary>
+            Gets the position at which the snapshot applies.
+            </summary>
+    </member>
+    <member name="P:EventStore.Snapshot.Payload">
+      <summary>
+            Gets the snapshot or materialized view of the stream at the revision indicated.
             </summary>
     </member>
   </members>

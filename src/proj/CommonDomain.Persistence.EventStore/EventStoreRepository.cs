@@ -3,13 +3,15 @@ namespace CommonDomain.Persistence.EventStore
 	using System;
 	using System.Collections;
 	using System.Collections.Generic;
+	using System.Linq;
 	using global::EventStore;
 	using global::EventStore.Persistence;
 
-	public class EventStoreRepository : IRepository
+	public class EventStoreRepository : IRepository, IDisposable
 	{
 		private const string AggregateTypeHeader = "AggregateType";
-		private readonly IDictionary<Guid, int> commitSequence = new Dictionary<Guid, int>();
+		private readonly IDictionary<Guid, Snapshot> snapshots = new Dictionary<Guid, Snapshot>();
+		private readonly IDictionary<Guid, IEventStream> streams = new Dictionary<Guid, IEventStream>();
 		private readonly IStoreEvents eventStore;
 		private readonly IConstructAggregates factory;
 		private readonly IStampAggregateVersion stamper;
@@ -27,103 +29,124 @@ namespace CommonDomain.Persistence.EventStore
 			this.conflictDetector = conflictDetector;
 		}
 
-		public TAggregate GetById<TAggregate>(Guid id, int versionToLoad) where TAggregate : class, IAggregate
+		public void Dispose()
 		{
-			var stream = this.eventStore.ReadFromSnapshotUntil(id, versionToLoad);
-			this.commitSequence[id] = stream.CommitSequence;
-			return this.BuildAggregate<TAggregate>(stream, versionToLoad);
+			this.Dispose(true);
+			GC.SuppressFinalize(this);
 		}
-		private TAggregate BuildAggregate<TAggregate>(CommittedEventStream stream, int versionToLoad)
-			where TAggregate : class, IAggregate
+		protected virtual void Dispose(bool disposing)
 		{
-			if (stream == null || stream.Events.Count == 0)
-				return null;
+			if (!disposing)
+				return;
 
-			var aggregate = this.factory.Build(
-				typeof(TAggregate), stream.StreamId, stream.Snapshot as IMemento);
+			lock (this.streams)
+			{
+				foreach (var stream in this.streams)
+					stream.Value.Dispose();
 
-			if (CanApplyEvents(aggregate, versionToLoad))
-				foreach (var @event in stream.Events)
-					aggregate.ApplyEvent(@event);
+				this.snapshots.Clear();
+				this.streams.Clear();
+			}
+		}
+
+		public virtual TAggregate GetById<TAggregate>(Guid id, int versionToLoad) where TAggregate : class, IAggregate
+		{
+			var snapshot = this.GetSnapshot(id, versionToLoad);
+			var stream = this.OpenStream(id, versionToLoad, snapshot);
+			var aggregate = this.GetAggregate<TAggregate>(snapshot, stream);
+
+			ApplyEventsToAggregate(versionToLoad, stream, aggregate);
 
 			return aggregate as TAggregate;
 		}
-		private static bool CanApplyEvents(IAggregate aggregate, int versionToLoad)
+		private static void ApplyEventsToAggregate(int versionToLoad, IEventStream stream, IAggregate aggregate)
 		{
-			return versionToLoad == 0 || aggregate.Version < versionToLoad;
+			if (versionToLoad == 0 || aggregate.Version < versionToLoad)
+				foreach (var @event in stream.CommittedEvents.Select(x => x.Body))
+					aggregate.ApplyEvent(@event);
+		}
+		private IAggregate GetAggregate<TAggregate>(Snapshot snapshot, IEventStream stream)
+		{
+			var memento = snapshot == null ? null : snapshot.Payload as IMemento;
+			return this.factory.Build(typeof(TAggregate), stream.StreamId, memento);
+		}
+		private Snapshot GetSnapshot(Guid id, int version)
+		{
+			Snapshot snapshot;
+			if (!this.snapshots.TryGetValue(id, out snapshot))
+				this.snapshots[id] = snapshot = this.eventStore.GetSnapshot(id, version);
+
+			return snapshot;
+		}
+		private IEventStream OpenStream(Guid id, int version, Snapshot snapshot)
+		{
+			IEventStream stream;
+			if (this.streams.TryGetValue(id, out stream))
+				return stream;
+
+			stream = snapshot == null
+				? this.eventStore.OpenStream(id, 0, version)
+				: this.eventStore.OpenStream(snapshot, version);
+
+			return this.streams[id] = stream;
 		}
 
-		public void Save(IAggregate aggregate, Guid commitId, Action<IDictionary<string, object>> headers)
+		public virtual void Save(IAggregate aggregate, Guid commitId, Action<IDictionary<string, object>> updateHeaders)
 		{
-			var attempt = this.BuildAttempt(aggregate, commitId);
-			if (attempt.Events.Count == 0)
-				return;
+			var stream = this.PrepareStream(aggregate);
 
-			if (headers != null)
-				headers(attempt.Headers);
-
-			attempt.Headers[AggregateTypeHeader] = aggregate.GetType().FullName;
-
-			this.Persist(attempt);
-
-			aggregate.ClearUncommittedEvents();
-		}
-		private CommitAttempt BuildAttempt(IAggregate aggregate, Guid commitId)
-		{
-			if (aggregate == null)
-				throw new ArgumentNullException("aggregate", ExceptionMessages.NullArgument);
-
-			var events = aggregate.GetUncommittedEvents();
-
-			var attempt = new CommitAttempt
-			{
-				StreamId = aggregate.Id,
-				StreamRevision = aggregate.Version,
-				CommitId = commitId
-			};
-
-			int previousCommitSequence;
-			if (this.commitSequence.TryGetValue(attempt.StreamId, out previousCommitSequence))
-				attempt.PreviousCommitSequence = previousCommitSequence;
-
-			foreach (var @event in events)
-				attempt.Events.Add(new EventMessage { Body = @event });
-
-			return attempt;
-		}
-		private void Persist(CommitAttempt attempt)
-		{
 			try
 			{
-				this.StampEventVersion(attempt);
-				this.eventStore.Write(attempt);
-				this.commitSequence[attempt.StreamId] = attempt.PreviousCommitSequence + 1;
+				var headers = PrepareHeaders(aggregate, updateHeaders);
+				stream.CommitChanges(commitId, headers);
+			}
+			catch (DuplicateCommitException) 
+			{
 			}
 			catch (ConcurrencyException e)
 			{
-				var revisionBeforeAttempt = attempt.StreamRevision - attempt.Events.Count;
-				var since = this.eventStore.ReadFrom(attempt.StreamId, revisionBeforeAttempt + 1);
+				this.ThrowOnConflict(stream, e);
 
-				if (this.conflictDetector.ConflictsWith(attempt.Events, (ICollection)since.Events))
-					throw new ConflictingCommandException(ExceptionMessages.ConflictingCommand, e);
-
-				attempt.StreamRevision += since.Events.Count;
-				attempt.PreviousCommitSequence = since.CommitSequence;
-
-				this.Persist(attempt);
+				stream.ClearChanges();
+				this.Save(aggregate, commitId, updateHeaders);
 			}
-			catch (DuplicateCommitException)
-			{
-			}
-			catch (PersistenceEngineException e)
+			catch (StorageException e)
 			{
 				throw new PersistenceException(e.Message, e);
 			}
 		}
-		private void StampEventVersion(CommitAttempt attempt)
+		private IEventStream PrepareStream(IAggregate aggregate)
 		{
-			var version = attempt.StreamRevision - attempt.Events.Count + 1;
-			this.stamper.SetVersion(attempt.Events, version);
+			IEventStream stream;
+			if (!this.streams.TryGetValue(aggregate.Id, out stream))
+				this.streams[aggregate.Id] = stream = this.eventStore.CreateStream(aggregate.Id);
+
+			foreach (var @event in aggregate.GetUncommittedEvents())
+				stream.Add(@event);
+
+			aggregate.ClearUncommittedEvents();
+
+			this.stamper.SetVersion((ICollection)stream.UncommittedEvents, stream.StreamRevision + 1);
+
+			return stream;
+		}
+		private static Dictionary<string, object> PrepareHeaders(IAggregate aggregate, Action<IDictionary<string, object>> updateHeaders)
+		{
+			var headers = new Dictionary<string, object>();
+
+			headers[AggregateTypeHeader] = aggregate.GetType().FullName;
+			if (updateHeaders != null)
+				updateHeaders(headers);
+
+			return headers;
+		}
+		private void ThrowOnConflict(IEventStream stream, ConcurrencyException e)
+		{
+			IEnumerable<Commit> commits = e.Commits;
+			var uncommitted = stream.UncommittedEvents.Select(x => x.Body) as ICollection;
+			var committed = commits.SelectMany(x => x.Events).Select(x => x.Body) as ICollection;
+			if (this.conflictDetector.ConflictsWith(uncommitted, committed))
+				throw new ConflictingCommandException(ExceptionMessages.ConflictingCommand, e);
 		}
 	}
 }
