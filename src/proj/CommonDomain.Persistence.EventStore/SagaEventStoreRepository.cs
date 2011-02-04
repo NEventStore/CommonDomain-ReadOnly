@@ -117,6 +117,7 @@ namespace CommonDomain.Persistence.EventStore
 			}
 			catch (DuplicateCommitException)
 			{
+				stream.ClearChanges();
 			}
 			catch (StorageException e)
 			{

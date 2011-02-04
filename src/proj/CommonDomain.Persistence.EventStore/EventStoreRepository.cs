@@ -94,6 +94,7 @@ namespace CommonDomain.Persistence.EventStore
 		public virtual void Save(IAggregate aggregate, Guid commitId, Action<IDictionary<string, object>> updateHeaders)
 		{
 			var stream = this.PrepareStream(aggregate);
+			var commitEventCount = stream.CommittedEvents.Count;
 
 			try
 			{
@@ -102,12 +103,15 @@ namespace CommonDomain.Persistence.EventStore
 			}
 			catch (DuplicateCommitException) 
 			{
+				stream.ClearChanges();
 			}
 			catch (ConcurrencyException e)
 			{
-				this.ThrowOnConflict(stream, e);
+				if (this.ThrowOnConflict(stream, commitEventCount))
+					throw new ConflictingCommandException(e.Message, e);
 
 				stream.ClearChanges();
+
 				this.Save(aggregate, commitId, updateHeaders);
 			}
 			catch (StorageException e)
@@ -140,13 +144,11 @@ namespace CommonDomain.Persistence.EventStore
 
 			return headers;
 		}
-		private void ThrowOnConflict(IEventStream stream, ConcurrencyException e)
+		private bool ThrowOnConflict(IEventStream stream, int skip)
 		{
-			IEnumerable<Commit> commits = e.Commits;
+			var committed = stream.CommittedEvents.Skip(skip).Select(x => x.Body) as ICollection;
 			var uncommitted = stream.UncommittedEvents.Select(x => x.Body) as ICollection;
-			var committed = commits.SelectMany(x => x.Events).Select(x => x.Body) as ICollection;
-			if (this.conflictDetector.ConflictsWith(uncommitted, committed))
-				throw new ConflictingCommandException(ExceptionMessages.ConflictingCommand, e);
+			return this.conflictDetector.ConflictsWith(uncommitted, committed);
 		}
 	}
 }
