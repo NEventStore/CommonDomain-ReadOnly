@@ -34,6 +34,13 @@ namespace CommonDomain.Persistence.EventStore
 			this.Dispose(true);
 			GC.SuppressFinalize(this);
 		}
+
+        public void ClearCache()
+        {
+            this.snapshots.Clear();
+            this.streams.Clear();
+        }
+
 		protected virtual void Dispose(bool disposing)
 		{
 			if (!disposing)
@@ -51,8 +58,10 @@ namespace CommonDomain.Persistence.EventStore
 
 		public virtual TAggregate GetById<TAggregate>(Guid id, int versionToLoad) where TAggregate : class, IAggregate
 		{
-			var snapshot = this.GetSnapshot(id, versionToLoad);
-			var stream = this.OpenStream(id, versionToLoad, snapshot);
+            if (versionToLoad == 0) versionToLoad = int.MaxValue;
+
+            var snapshot = this.GetSnapshot(id, versionToLoad);
+            var stream = this.OpenStream(id, versionToLoad, snapshot);
 			var aggregate = this.GetAggregate<TAggregate>(snapshot, stream);
 
 			ApplyEventsToAggregate(versionToLoad, stream, aggregate);
@@ -93,19 +102,20 @@ namespace CommonDomain.Persistence.EventStore
 
 		public virtual void Save(IAggregate aggregate, Guid commitId, Action<IDictionary<string, object>> updateHeaders)
 		{
-			var stream = this.PrepareStream(aggregate);
-
+            var stream = this.PrepareStream(aggregate);
+		    int eventsAtCommit = stream.CommittedEvents.Count;
 			try
 			{
 				var headers = PrepareHeaders(aggregate, updateHeaders);
 				stream.CommitChanges(commitId, headers);
+                aggregate.ClearUncommittedEvents();
 			}
 			catch (DuplicateCommitException) 
 			{
 			}
-			catch (ConcurrencyException e)
+			catch (ConcurrencyException)
 			{
-				this.ThrowOnConflict(stream, e);
+                this.ThrowOnConflict(stream, eventsAtCommit); // stream is refreshed
 
 				stream.ClearChanges();
 				this.Save(aggregate, commitId, updateHeaders);
@@ -124,9 +134,7 @@ namespace CommonDomain.Persistence.EventStore
 			foreach (var @event in aggregate.GetUncommittedEvents())
 				stream.Add(@event);
 
-			aggregate.ClearUncommittedEvents();
-
-			this.stamper.SetVersion((ICollection)stream.UncommittedEvents, stream.StreamRevision + 1);
+			this.stamper.SetVersion((ICollection)stream.UncommittedEvents.ToArray(), stream.StreamRevision + 1);
 
 			return stream;
 		}
@@ -140,13 +148,12 @@ namespace CommonDomain.Persistence.EventStore
 
 			return headers;
 		}
-		private void ThrowOnConflict(IEventStream stream, ConcurrencyException e)
+		private void ThrowOnConflict(IEventStream stream, int eventsAtCommit)
 		{
-			IEnumerable<Commit> commits = e.Commits;
-			var uncommitted = stream.UncommittedEvents.Select(x => x.Body) as ICollection;
-			var committed = commits.SelectMany(x => x.Events).Select(x => x.Body) as ICollection;
+            var committed = stream.CommittedEvents.Skip(eventsAtCommit).Select(x => x.Body).ToArray();
+            var uncommitted = stream.UncommittedEvents.Select(x => x.Body).ToArray();
 			if (this.conflictDetector.ConflictsWith(uncommitted, committed))
-				throw new ConflictingCommandException(ExceptionMessages.ConflictingCommand, e);
+				throw new ConflictingCommandException(ExceptionMessages.ConflictingCommand);
 		}
 	}
 }

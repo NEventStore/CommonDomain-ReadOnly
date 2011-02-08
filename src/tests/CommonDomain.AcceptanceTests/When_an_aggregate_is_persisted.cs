@@ -1,3 +1,5 @@
+using CommonDomain.Persistence;
+
 #pragma warning disable 169
 // ReSharper disable InconsistentNaming
 
@@ -11,221 +13,248 @@ namespace CommonDomain.AcceptanceTests
 	using Machine.Specifications;
 	using Persistence.EventStore;
 
-	[Subject("Persistence")]
-	public class when_an_aggregate_is_persisted: in_the_event_store
-	{
-		static readonly Guid id = Guid.NewGuid();
-		static TestAggregate aggregate;
+    [Subject("Persistence")]
+    public class when_an_aggregate_is_persisted : in_the_event_store
+    {
+        static readonly Guid id = Guid.NewGuid();
+        static TestAggregate aggregate;
 
-		Establish context = () => aggregate = new TestAggregate(id, "Some name");
-			
-		Because of = () =>
-			repository.Save(aggregate, Guid.NewGuid(), null);
+        Establish context = () => aggregate = new TestAggregate(id, "Some name");
 
-		It should_be_returned_when_calling_get_by_id = () =>
-			repository.GetById<TestAggregate>(id, 0).Id.ShouldEqual(aggregate.Id);
-	}
+        Because of = () =>
+            repository.Save(aggregate, Guid.NewGuid(), null);
 
-	[Subject("Persistence")]
-	public class when_an_aggregate_is_updated : in_the_event_store
-	{
-		static readonly Guid Id = Guid.NewGuid();
-		const string NewName = "New name";
+        It should_be_returned_when_calling_get_by_id = () =>
+            repository.GetById<TestAggregate>(id, 0).Id.ShouldEqual(aggregate.Id);
+    }
 
-		Establish context = () =>
-			repository.Save(new TestAggregate(Id, "Some name"), Guid.NewGuid(), null);
+    [Subject("Persistence")]
+    public class when_an_aggregate_is_updated : in_the_event_store
+    {
+        static readonly Guid Id = Guid.NewGuid();
+        const string NewName = "New name";
 
-		Because of = () =>
-		{
-			var aggregate = repository.GetById<TestAggregate>(Id, 0);
-			aggregate.ChangeName(NewName);
+        Establish context = () =>
+            repository.Save(new TestAggregate(Id, "Some name"), Guid.NewGuid(), null);
 
-			repository.Save(aggregate, Guid.NewGuid(), null);
-		};
-		  
-		It should_the_version_number_should_increase = () =>
-			repository.GetById<TestAggregate>(Id, 0).Version.ShouldEqual(2);
+        Because of = () =>
+        {
+            var aggregate = repository.GetById<TestAggregate>(Id, 0);
+            aggregate.ChangeName(NewName);
 
-		It should_update_the_aggregate = () =>
-			repository.GetById<TestAggregate>(Id, 0).Name.ShouldEqual(NewName);
-	}
+            repository.Save(aggregate, Guid.NewGuid(), null);
+        };
 
-	[Subject("Persistence")]
-	public class when_an_aggregate_is_updated_again_after_being_saved : in_the_event_store
-	{
-		static readonly Guid Id = Guid.NewGuid();
-		const string NewName = "New name";
-		const string SecondChange = "Second Name";
+        It should_the_version_number_should_increase = () =>
+            repository.GetById<TestAggregate>(Id, 0).Version.ShouldEqual(2);
 
-		Establish context = () =>
-			repository.Save(new TestAggregate(Id, "Some name"), Guid.NewGuid(), null);
+        It should_update_the_aggregate = () =>
+            repository.GetById<TestAggregate>(Id, 0).Name.ShouldEqual(NewName);
+    }
 
-		Because of = () =>
-		{
-			var aggregate = repository.GetById<TestAggregate>(Id, 0);
+    [Subject("Persistence")]
+    public class when_an_aggregate_is_updated_again_after_being_saved : in_the_event_store
+    {
+        static readonly Guid Id = Guid.NewGuid();
+        const string NewName = "New name";
+        const string SecondChange = "Second Name";
 
-			aggregate.ChangeName(NewName);
-			repository.Save(aggregate, Guid.NewGuid(), null);
+        Establish context = () =>
+            repository.Save(new TestAggregate(Id, "Some name"), Guid.NewGuid(), null);
 
-			aggregate.ChangeName(SecondChange);
-			repository.Save(aggregate, Guid.NewGuid(), null);
-		};
+        Because of = () =>
+        {
+            var aggregate = repository.GetById<TestAggregate>(Id, 0);
 
-		It should_increase_the_version_number = () =>
-			repository.GetById<TestAggregate>(Id, 0).Version.ShouldEqual(3);
+            aggregate.ChangeName(NewName);
+            repository.Save(aggregate, Guid.NewGuid(), null);
 
-		It should_update_the_aggregate = () =>
-			repository.GetById<TestAggregate>(Id, 0).Name.ShouldEqual(SecondChange);
-	}
+            aggregate.ChangeName(SecondChange);
+            repository.Save(aggregate, Guid.NewGuid(), null);
+        };
 
-	[Subject("Persistence")]
-	public class when_an_aggregate_is_updated_by_two_different_repository_instances_using_the_same_store_and_the_second_update_has_less_events_than_the_first : in_the_event_store
-	{
-		static readonly Guid Id = Guid.NewGuid();
-		const string NewName = "New name";
-		const string NewerName = "Newer name";
-		const string FinalName = "Final Name";
+        It should_increase_the_version_number = () =>
+            repository.GetById<TestAggregate>(Id, 0).Version.ShouldEqual(3);
 
-		static EventStoreRepository repository1;
-		static EventStoreRepository repository2;
+        It should_update_the_aggregate = () =>
+            repository.GetById<TestAggregate>(Id, 0).Name.ShouldEqual(SecondChange);
+    }
 
-		Establish context = () =>
-		{
-			repository.Save(new TestAggregate(Id, "Some name"), Guid.NewGuid(), null); // 1
-			repository1 = new EventStoreRepository(eventStore, new AggregateFactory(), new ReflectionVersionStamper(), new ConflictDetector());
-			repository2 = new EventStoreRepository(eventStore, new AggregateFactory(), new ReflectionVersionStamper(), new ConflictDetector());
-		};
-		Because of = () =>
-		{
-			// simulate thread1
-			var aggregate1 = repository1.GetById<TestAggregate>(Id, 0);
-			aggregate1.ChangeName(NewName); // 2
-			aggregate1.ChangeName(NewName); // 3
-			aggregate1.ChangeName(NewName); // 4
+    [Subject("Persistence")]
+    public class when_an_aggregate_is_updated_by_two_different_repository_instances_using_the_same_store_and_the_second_update_has_less_events_than_the_first : in_the_event_store
+    {
+        static readonly Guid Id = Guid.NewGuid();
+        const string NewName = "New name";
+        const string NewerName = "Newer name";
+        const string FinalName = "Final Name";
 
-			// simulate thread2
-			var aggregate2 = repository2.GetById<TestAggregate>(Id, 0);
-			aggregate2.ChangeName(NewerName); // 5
-			aggregate2.ChangeName(FinalName); // 6
+        static IRepository repository1;
+        static IRepository repository2;
+        private static List<IRepository> repositories;
 
-			// simulate thread1
-			repository1.Save(aggregate1, Guid.NewGuid(), null);
+        Establish context = () =>
+        {
+            var conflictDetector = new ConflictDetector();
+            conflictDetector.Register<NameChangedEvent, NameChangedEvent>((first, second) => false); //always return no conflict 
 
-			// simulate thread2 - this should throw a concurrency exception and force a single retry
-			repository2.Save(aggregate2, Guid.NewGuid(), null);
-		};
+            repository.Save(new TestAggregate(Id, "Some name"), Guid.NewGuid(), null); // 1
+            repository1 = new EventStoreRepository(eventStore, new AggregateFactory(), new ReflectionVersionStamper(), conflictDetector);
+            repository2 = new EventStoreRepository(eventStore, new AggregateFactory(), new ReflectionVersionStamper(), conflictDetector);
+        };
+        Because of = () =>
+        {
+            // simulate thread1
+            var aggregate1 = repository1.GetById<TestAggregate>(Id, 0);
+            aggregate1.ChangeName(NewName); // 2
+            aggregate1.ChangeName(NewName); // 3
+            aggregate1.ChangeName(NewName); // 4
 
-		It should_increase_the_version_number_for_both_repositories = () =>
-		{
-			repository1.GetById<TestAggregate>(Id, 0).Version.ShouldEqual(6);
-			repository2.GetById<TestAggregate>(Id, 0).Version.ShouldEqual(6);
-		};
+            // simulate thread2
+            var aggregate2 = repository2.GetById<TestAggregate>(Id, 0);
+            aggregate2.ChangeName(NewerName); // 5
+            aggregate2.ChangeName(FinalName); // 6
 
-		It should_update_the_aggregate_with_the_last_commit = () =>
-			repository.GetById<TestAggregate>(Id, 0).Name.ShouldEqual(FinalName);
-	}
+            // simulate thread1
+            repository1.Save(aggregate1, Guid.NewGuid(), null);
 
-	[Subject("Persistence")]
-	public class when_an_aggregate_is_updated_by_two_different_repository_instances_using_the_same_store_and_the_second_update_has_more_events_than_the_entire_stream : in_the_event_store
-	{
-		static readonly Guid Id = Guid.NewGuid();
-		const string NewName = "New name";
-		const string NewerName = "Newer name";
-		const string FinalName = "Final Name";
+            // simulate thread2 - this should throw a concurrency exception and force a single retry
+            repository2.Save(aggregate2, Guid.NewGuid(), null);
+        };
 
-		static EventStoreRepository repository1;
-		static EventStoreRepository repository2;
+        //unless the cache is cleared forcefully, the stream is only refreshed after a conflict, 
+        //and the cache is only updated on saving
 
-		Establish context = () =>
-		{
-			repository.Save(new TestAggregate(Id, "Some name"), Guid.NewGuid(), null); // 1
-			repository1 = new EventStoreRepository(eventStore, new AggregateFactory(), new ReflectionVersionStamper(), new ConflictDetector());
-			repository2 = new EventStoreRepository(eventStore, new AggregateFactory(), new ReflectionVersionStamper(), new ConflictDetector());
-		};
-		Because of = () =>
-		{
-			// simulate thread1
-			var aggregate1 = repository1.GetById<TestAggregate>(Id, 0);
-			aggregate1.ChangeName(NewName); // 2
-			aggregate1.ChangeName(NewName); // 3
-			aggregate1.ChangeName(NewName); // 4
+        It should_increase_the_aggregate_version_loaded_from_repository1 = () =>
+            repository1.GetById<TestAggregate>(Id, 0).Version.ShouldEqual(4);
 
-			// simulate thread2
-			var aggregate2 = repository2.GetById<TestAggregate>(Id, 0);
-			aggregate2.ChangeName(NewerName); // 5
-			aggregate2.ChangeName(NewerName); // 6
-			aggregate2.ChangeName(NewerName); // 7
-			aggregate2.ChangeName(NewerName); // 8
-			aggregate2.ChangeName(NewerName); // 9
-			aggregate2.ChangeName(FinalName); // 10
+        It should_increase_the_aggregate_version_loaded_from_repository2 = () =>
+            repository2.GetById<TestAggregate>(Id, 0).Version.ShouldEqual(6);
 
-			// simulate thread1
-			repository1.Save(aggregate1, Guid.NewGuid(), null);
+        It should_have_updated_the_aggregate_with_the_last_commit = () =>
+        {
+            repository.ClearCache();
+            var aggregate = repository.GetById<TestAggregate>(Id, 0);
+            aggregate.Name.ShouldEqual(FinalName);
+            aggregate.Version.ShouldEqual(6);
+        };
+    }
 
-			// simulate thread2 - this should throw a concurrency exception and force a single retry
-			repository2.Save(aggregate2, Guid.NewGuid(), null);
-		};
+    [Subject("Persistence")]
+    //"than_the_entire_stream" is a shorter way of saying "than_the_first_commit_persisted_by_another_thread_since_we_retrieved_our_version_of_the_aggregate" 
+    public class when_an_aggregate_is_updated_by_two_different_repository_instances_using_the_same_store_and_the_second_update_has_more_events_than_the_entire_stream : in_the_event_store
+    {
+        static readonly Guid Id = Guid.NewGuid();
+        const string NewName = "New name";
+        const string NewerName = "Newer name";
+        const string FinalName = "Final Name";
 
-		It should_increase_the_version_number_for_both_repositories = () =>
-		{
-			repository1.GetById<TestAggregate>(Id, 0).Version.ShouldEqual(10);
-			repository2.GetById<TestAggregate>(Id, 0).Version.ShouldEqual(10);
-		};
+        static EventStoreRepository repository1;
+        static EventStoreRepository repository2;
 
-		It should_update_the_aggregate_with_the_last_commit = () =>
-			repository.GetById<TestAggregate>(Id, 0).Name.ShouldEqual(FinalName);
-	}
+        Establish context = () =>
+        {
+            var conflictDetector = new ConflictDetector();
+            conflictDetector.Register<NameChangedEvent, NameChangedEvent>((first, second) => false); //always return no conflict 
 
-	/// <summary>
-	/// This test would simulate cross process concurrency
-	/// </summary>
-	[Subject("Persistence")]
-	public class when_an_aggregate_is_updated_concurrently_on_two_threads_using_different_stores : in_the_event_store
-	{
-		static readonly Guid Id = Guid.NewGuid();
-		const string NewName = "New name";
-		const string NewerName = "Newer name";
+            repository.Save(new TestAggregate(Id, "Some name"), Guid.NewGuid(), null); // 1
+            repository1 = new EventStoreRepository(eventStore, new AggregateFactory(), new ReflectionVersionStamper(), conflictDetector);
+            repository2 = new EventStoreRepository(eventStore, new AggregateFactory(), new ReflectionVersionStamper(), conflictDetector);
+        };
+        Because of = () =>
+        {
+            // simulate thread1
+            var aggregate1 = repository1.GetById<TestAggregate>(Id, 0);
+            aggregate1.ChangeName(NewName); // 2
+            aggregate1.ChangeName(NewName); // 3
+            aggregate1.ChangeName(NewName); // 4
 
-		static IList<IDomainEvent> publishedEvents1 = new List<IDomainEvent>();
-		static IList<IDomainEvent> publishedEvents2 = new List<IDomainEvent>();
+            // simulate thread2
+            var aggregate2 = repository2.GetById<TestAggregate>(Id, 0);
+            aggregate2.ChangeName(NewerName); // 5
+            aggregate2.ChangeName(NewerName); // 6
+            aggregate2.ChangeName(NewerName); // 7
+            aggregate2.ChangeName(NewerName); // 8
+            aggregate2.ChangeName(NewerName); // 9
+            aggregate2.ChangeName(FinalName); // 10
 
-		static OptimisticEventStore eventStore1;
-		static OptimisticEventStore eventStore2;
+            // simulate thread1
+            repository1.Save(aggregate1, Guid.NewGuid(), null);
 
-		static EventStoreRepository repository1;
-		static EventStoreRepository repository2;
+            // simulate thread2 - this should throw a concurrency exception and force a single retry
+            repository2.Save(aggregate2, Guid.NewGuid(), null);
+        };
 
-		Establish context = () =>
-		{
-			eventStore1 = new OptimisticEventStore(engine, new SynchronousDispatcher(new FakeBus(publishedEvents1), engine));
-			eventStore2 = new OptimisticEventStore(engine, new SynchronousDispatcher(new FakeBus(publishedEvents2), engine));
+        //unless the cache is cleared forcefully, the stream is only refreshed after a conflict, 
+        //and the cache is only updated on saving
 
-			repository1 = new EventStoreRepository(eventStore1, new AggregateFactory(), new ReflectionVersionStamper(), new ConflictDetector());
-			repository2 = new EventStoreRepository(eventStore2, new AggregateFactory(), new ReflectionVersionStamper(), new ConflictDetector());
+        It should_increase_the_aggregate_version_loaded_from_repository1 = () =>
+            repository1.GetById<TestAggregate>(Id, 0).Version.ShouldEqual(4);
 
-			repository1.Save(new TestAggregate(Id, "Some name"), Guid.NewGuid(), null);
-		};
+        It should_increase_the_aggregate_version_loaded_from_repository2 = () =>
+            repository2.GetById<TestAggregate>(Id, 0).Version.ShouldEqual(10);
 
-		Because of = () =>
-		{
-			// simulate T1
-			var aggregate = repository1.GetById<TestAggregate>(Id, 0);
-			aggregate.ChangeName(NewName);
+        It should_have_updated_the_aggregate_with_the_last_commit = () =>
+        {
+            repository.ClearCache();
+            var aggregate = repository.GetById<TestAggregate>(Id, 0);
+            aggregate.Name.ShouldEqual(FinalName);
+            aggregate.Version.ShouldEqual(10);
+        };
+    }
 
-			// simulate T2
-			var aggregate2 = repository2.GetById<TestAggregate>(Id, 0);
-			aggregate2.ChangeName(NewerName);
+    /// <summary>
+    /// This test would simulate cross process concurrency
+    /// </summary>
+    [Subject("Persistence")]
+    public class when_an_aggregate_is_updated_concurrently_on_two_threads_using_different_stores : in_the_event_store
+    {
+        static readonly Guid Id = Guid.NewGuid();
+        const string NewName = "New name";
+        const string NewerName = "Newer name";
 
-			repository1.Save(aggregate, Guid.NewGuid(), null);
-			repository2.Save(aggregate2, Guid.NewGuid(), null);
-		};
+        static IList<IDomainEvent> publishedEvents1 = new List<IDomainEvent>();
+        static IList<IDomainEvent> publishedEvents2 = new List<IDomainEvent>();
 
-		It the_version_number_should_increase_to_include_all_commits = () =>
-			repository2.GetById<TestAggregate>(Id, 0).Version.ShouldEqual(3);
+        static OptimisticEventStore eventStore1;
+        static OptimisticEventStore eventStore2;
 
-		It should_update_the_aggregate = () =>
-			repository2.GetById<TestAggregate>(Id, 0).Name.ShouldEqual(NewerName);
-	}
+        static EventStoreRepository repository1;
+        static EventStoreRepository repository2;
+
+        Establish context = () =>
+        {
+            eventStore1 = new OptimisticEventStore(engine, new SynchronousDispatcher(new FakeBus(publishedEvents1), engine));
+            eventStore2 = new OptimisticEventStore(engine, new SynchronousDispatcher(new FakeBus(publishedEvents2), engine));
+
+            var conflictDetector = new ConflictDetector();
+            conflictDetector.Register<NameChangedEvent, NameChangedEvent>((first, second) => false); //always return no conflict 
+
+            repository1 = new EventStoreRepository(eventStore1, new AggregateFactory(), new ReflectionVersionStamper(), conflictDetector);
+            repository2 = new EventStoreRepository(eventStore2, new AggregateFactory(), new ReflectionVersionStamper(), conflictDetector);
+
+            repository1.Save(new TestAggregate(Id, "Some name"), Guid.NewGuid(), null);
+        };
+
+        Because of = () =>
+        {
+            // simulate T1
+            var aggregate = repository1.GetById<TestAggregate>(Id, 0);
+            aggregate.ChangeName(NewName);
+
+            // simulate T2
+            var aggregate2 = repository2.GetById<TestAggregate>(Id, 0);
+            aggregate2.ChangeName(NewerName);
+
+            repository1.Save(aggregate, Guid.NewGuid(), null);
+            repository2.Save(aggregate2, Guid.NewGuid(), null);
+        };
+
+        It the_version_number_should_increase_to_include_all_commits = () =>
+            repository2.GetById<TestAggregate>(Id, 0).Version.ShouldEqual(3);
+
+        It should_update_the_aggregate = () =>
+            repository2.GetById<TestAggregate>(Id, 0).Name.ShouldEqual(NewerName);
+    }
 
 	public class TestAggregate : AggregateBase<IDomainEvent>
 	{
