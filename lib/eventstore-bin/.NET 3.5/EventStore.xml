@@ -119,12 +119,23 @@
             </summary>
       <param name="uncommittedEvents">The events to be tracked.</param>
     </member>
-    <member name="M:EventStore.IEventStream.CommitChanges(System.Guid,System.Collections.Generic.Dictionary{System.String,System.Object})">
+    <member name="M:EventStore.IEventStream.Add(System.Collections.Generic.IEnumerable{EventStore.EventMessage})">
+      <summary>
+            Adds the event messages provided to the session to be tracked.
+            </summary>
+      <param name="uncommittedEvents">The events to be tracked.</param>
+    </member>
+    <member name="M:EventStore.IEventStream.Add(System.Collections.Generic.IEnumerable{System.Object})">
+      <summary>
+            Adds the event messages provided to the session to be tracked.
+            </summary>
+      <param name="uncommittedEvents">The events to be tracked.</param>
+    </member>
+    <member name="M:EventStore.IEventStream.CommitChanges(System.Guid)">
       <summary>
             Commits the changes to durable storage.
             </summary>
       <param name="commitId">The value which uniquely identifies the commit.</param>
-      <param name="headers">Any optional metadata which belongs to the event being committed.</param>
       <exception cref="T:EventStore.DuplicateCommitException" />
       <exception cref="T:EventStore.ConcurrencyException" />
       <exception cref="T:EventStore.Persistence.StorageException" />
@@ -157,6 +168,11 @@
     <member name="P:EventStore.IEventStream.UncommittedEvents">
       <summary>
             Gets the collection of yet-to-be-committed events that have not yet been persisted to durable storage.
+            </summary>
+    </member>
+    <member name="P:EventStore.IEventStream.UncommittedHeaders">
+      <summary>
+            Gets the collection of yet-to-be-committed headers associated with the uncommitted events.
             </summary>
     </member>
     <member name="T:EventStore.IAccessSnapshots">
@@ -195,13 +211,15 @@
     </member>
     <member name="M:EventStore.IStoreEvents.OpenStream(System.Guid,System.Int32,System.Int32)">
       <summary>
-            Reads the stream indicated from the minimum revision specified up to the maximum revision specified.
+            Reads the stream indicated from the minimum revision specified up to the maximum revision specified or creates
+            an empty stream if no commits are found and a minimum revision of zero is provided.
             </summary>
       <param name="streamId">The value which uniquely identifies the stream from which the events will be read.</param>
       <param name="minRevision">The minimum revision of the stream to be read.</param>
       <param name="maxRevision">The maximum revision of the stream to be read.</param>
       <returns>A series of committed events represented as a stream.</returns>
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.StreamNotFoundException" />
     </member>
     <member name="M:EventStore.IStoreEvents.OpenStream(EventStore.Snapshot,System.Int32)">
       <summary>
@@ -210,6 +228,7 @@
       <param name="snapshot">The snapshot of the stream to be read.</param>
       <param name="maxRevision">The maximum revision of the stream to be read.</param>
       <returns>A series of committed events represented as a stream.</returns>
+      <exception cref="T:EventStore.Persistence.StorageException" />
     </member>
     <member name="T:EventStore.EventMessage">
       <summary>
@@ -324,10 +343,11 @@
       <param name="output">The stream into which the serialized object graph should be written.</param>
       <param name="graph">The object graph to be serialized.</param>
     </member>
-    <member name="M:EventStore.Serialization.ISerialize.Deserialize(System.IO.Stream)">
+    <member name="M:EventStore.Serialization.ISerialize.Deserialize``1(System.IO.Stream)">
       <summary>
             Deserializes the stream provided and reconstructs the corresponding object graph.
             </summary>
+      <typeparam name="T">The type of object to be deserialized.</typeparam>
       <param name="input">The stream of bytes from which the object will be reconstructed.</param>
       <returns>The reconstructed object.</returns>
     </member>
@@ -445,10 +465,11 @@
       <param name="value">The object graph to be serialized.</param>
       <returns>A serialized representation of the object graph provided.</returns>
     </member>
-    <member name="M:EventStore.Serialization.SerializationExtensions.Deserialize(EventStore.Serialization.ISerialize,System.Byte[])">
+    <member name="M:EventStore.Serialization.SerializationExtensions.Deserialize``1(EventStore.Serialization.ISerialize,System.Byte[])">
       <summary>
             Deserializes the array of bytes provided.
             </summary>
+      <typeparam name="T">The type of object to be deserialized.</typeparam>
       <param name="serializer">The serializer to use.</param>
       <param name="serialized">The serialized array of bytes.</param>
       <returns>The reconstituted object, if any.</returns>

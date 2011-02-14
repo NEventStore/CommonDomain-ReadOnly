@@ -30,7 +30,7 @@ namespace CommonDomain.AcceptanceTests
 
 			eventStore = new OptimisticEventStore(engine, new SynchronousDispatcher(new FakeBus(publishedEvents), engine));
 
-			repository = new EventStoreRepository(eventStore, new AggregateFactory(), new ReflectionVersionStamper(), new ConflictDetector());
+			repository = new EventStoreRepository(eventStore, new AggregateFactory(), new ConflictDetector());
 		};
 	}
 
@@ -38,8 +38,7 @@ namespace CommonDomain.AcceptanceTests
 	{
 		public IAggregate Build(Type type, Guid id, IMemento snapshot)
 		{
-			// todo
-			return Activator.CreateInstance(type, id) as IAggregate;
+			return Activator.CreateInstance(type, id) as IAggregate; // todo
 		}
 	}
 

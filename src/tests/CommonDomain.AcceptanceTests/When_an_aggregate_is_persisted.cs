@@ -92,8 +92,8 @@ namespace CommonDomain.AcceptanceTests
 		Establish context = () =>
 		{
 			repository.Save(new TestAggregate(Id, "Some name"), Guid.NewGuid(), null); // 1
-			repository1 = new EventStoreRepository(eventStore, new AggregateFactory(), new ReflectionVersionStamper(), new ConflictDetector());
-			repository2 = new EventStoreRepository(eventStore, new AggregateFactory(), new ReflectionVersionStamper(), new ConflictDetector());
+			repository1 = new EventStoreRepository(eventStore, new AggregateFactory(), new ConflictDetector());
+			repository2 = new EventStoreRepository(eventStore, new AggregateFactory(), new ConflictDetector());
 		};
 		Because of = () =>
 		{
@@ -139,8 +139,8 @@ namespace CommonDomain.AcceptanceTests
 		Establish context = () =>
 		{
 			repository.Save(new TestAggregate(Id, "Some name"), Guid.NewGuid(), null); // 1
-			repository1 = new EventStoreRepository(eventStore, new AggregateFactory(), new ReflectionVersionStamper(), new ConflictDetector());
-			repository2 = new EventStoreRepository(eventStore, new AggregateFactory(), new ReflectionVersionStamper(), new ConflictDetector());
+			repository1 = new EventStoreRepository(eventStore, new AggregateFactory(), new ConflictDetector());
+			repository2 = new EventStoreRepository(eventStore, new AggregateFactory(), new ConflictDetector());
 		};
 		Because of = () =>
 		{
@@ -186,8 +186,8 @@ namespace CommonDomain.AcceptanceTests
 		const string NewName = "New name";
 		const string NewerName = "Newer name";
 
-		static IList<IDomainEvent> publishedEvents1 = new List<IDomainEvent>();
-		static IList<IDomainEvent> publishedEvents2 = new List<IDomainEvent>();
+		static readonly IList<IDomainEvent> publishedEvents1 = new List<IDomainEvent>();
+		static readonly IList<IDomainEvent> publishedEvents2 = new List<IDomainEvent>();
 
 		static OptimisticEventStore eventStore1;
 		static OptimisticEventStore eventStore2;
@@ -200,8 +200,8 @@ namespace CommonDomain.AcceptanceTests
 			eventStore1 = new OptimisticEventStore(engine, new SynchronousDispatcher(new FakeBus(publishedEvents1), engine));
 			eventStore2 = new OptimisticEventStore(engine, new SynchronousDispatcher(new FakeBus(publishedEvents2), engine));
 
-			repository1 = new EventStoreRepository(eventStore1, new AggregateFactory(), new ReflectionVersionStamper(), new ConflictDetector());
-			repository2 = new EventStoreRepository(eventStore2, new AggregateFactory(), new ReflectionVersionStamper(), new ConflictDetector());
+			repository1 = new EventStoreRepository(eventStore1, new AggregateFactory(), new ConflictDetector());
+			repository2 = new EventStoreRepository(eventStore2, new AggregateFactory(), new ConflictDetector());
 
 			repository1.Save(new TestAggregate(Id, "Some name"), Guid.NewGuid(), null);
 		};

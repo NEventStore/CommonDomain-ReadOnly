@@ -14,18 +14,15 @@ namespace CommonDomain.Persistence.EventStore
 		private readonly IDictionary<Guid, IEventStream> streams = new Dictionary<Guid, IEventStream>();
 		private readonly IStoreEvents eventStore;
 		private readonly IConstructAggregates factory;
-		private readonly IStampAggregateVersion stamper;
 		private readonly IDetectConflicts conflictDetector;
 
 		public EventStoreRepository(
 			IStoreEvents eventStore,
 			IConstructAggregates factory,
-			IStampAggregateVersion stamper,
 			IDetectConflicts conflictDetector)
 		{
 			this.eventStore = eventStore;
 			this.factory = factory;
-			this.stamper = stamper;
 			this.conflictDetector = conflictDetector;
 		}
 
@@ -93,13 +90,13 @@ namespace CommonDomain.Persistence.EventStore
 
 		public virtual void Save(IAggregate aggregate, Guid commitId, Action<IDictionary<string, object>> updateHeaders)
 		{
-			var stream = this.PrepareStream(aggregate);
+			var headers = PrepareHeaders(aggregate, updateHeaders);
+			var stream = this.PrepareStream(aggregate, headers);
 			var commitEventCount = stream.CommittedEvents.Count;
 
 			try
 			{
-				var headers = PrepareHeaders(aggregate, updateHeaders);
-				stream.CommitChanges(commitId, headers);
+				stream.CommitChanges(commitId);
 			}
 			catch (DuplicateCommitException) 
 			{
@@ -119,18 +116,18 @@ namespace CommonDomain.Persistence.EventStore
 				throw new PersistenceException(e.Message, e);
 			}
 		}
-		private IEventStream PrepareStream(IAggregate aggregate)
+		private IEventStream PrepareStream(IAggregate aggregate, Dictionary<string, object> headers)
 		{
 			IEventStream stream;
 			if (!this.streams.TryGetValue(aggregate.Id, out stream))
 				this.streams[aggregate.Id] = stream = this.eventStore.CreateStream(aggregate.Id);
 
-			foreach (var @event in aggregate.GetUncommittedEvents())
-				stream.Add(@event);
+			foreach (var item in headers)
+				stream.UncommittedHeaders[item.Key] = item.Value;
+
+			stream.Add(aggregate.GetUncommittedEvents());
 
 			aggregate.ClearUncommittedEvents();
-
-			this.stamper.SetVersion((ICollection)stream.UncommittedEvents, stream.StreamRevision + 1);
 
 			return stream;
 		}

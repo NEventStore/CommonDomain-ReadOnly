@@ -76,24 +76,13 @@ namespace CommonDomain.Persistence.EventStore
 			if (saga == null)
 				throw new ArgumentNullException("saga", ExceptionMessages.NullArgument);
 
-			var stream = this.PrepareStream(saga);
 			var headers = PrepareHeaders(saga, updateHeaders);
+			var stream = this.PrepareStream(saga, headers);
 
-			Persist(stream, commitId, headers);
+			Persist(stream, commitId);
 
 			saga.ClearUncommittedEvents();
 			saga.ClearUndispatchedMessages();
-		}
-		private IEventStream PrepareStream(ISaga saga)
-		{
-			IEventStream stream;
-			if (!this.streams.TryGetValue(saga.Id, out stream))
-				this.streams[saga.Id] = stream = this.eventStore.CreateStream(saga.Id);
-
-			foreach (var @event in saga.GetUncommittedEvents())
-				stream.Add(@event);
-
-			return stream;
 		}
 		private static Dictionary<string, object> PrepareHeaders(ISaga saga, Action<IDictionary<string, object>> updateHeaders)
 		{
@@ -109,11 +98,24 @@ namespace CommonDomain.Persistence.EventStore
 
 			return headers;
 		}
-		private static void Persist(IEventStream stream, Guid commitId, Dictionary<string, object> headers)
+		private IEventStream PrepareStream(ISaga saga , Dictionary<string, object> headers)
+		{
+			IEventStream stream;
+			if (!this.streams.TryGetValue(saga.Id, out stream))
+				this.streams[saga.Id] = stream = this.eventStore.CreateStream(saga.Id);
+
+			foreach (var item in headers)
+				stream.UncommittedHeaders[item.Key] = item.Value;
+
+			stream.Add(saga.GetUncommittedEvents());
+
+			return stream;
+		}
+		private static void Persist(IEventStream stream, Guid commitId)
 		{
 			try
 			{
-				stream.CommitChanges(commitId, headers);
+				stream.CommitChanges(commitId);
 			}
 			catch (DuplicateCommitException)
 			{
