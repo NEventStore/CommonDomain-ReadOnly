@@ -31,7 +31,7 @@ namespace CommonDomain.Core
 				handler(uncommitted as TUncommitted, committed as TCommitted);
 		}
 
-		public bool ConflictsWith(ICollection uncommittedEvents, ICollection committedEvents)
+        public bool ConflictsWith(IEnumerable<object> uncommittedEvents, IEnumerable<object> committedEvents)
 		{
 			return (from object uncommitted in uncommittedEvents
 					from object committed in committedEvents

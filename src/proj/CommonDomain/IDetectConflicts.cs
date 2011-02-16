@@ -1,6 +1,8 @@
+using System;
+
 namespace CommonDomain
 {
-	using System.Collections;
+    using System.Collections.Generic;
 
 	public interface IDetectConflicts
 	{
@@ -8,7 +10,7 @@ namespace CommonDomain
 			where TUncommitted : class
 			where TCommitted : class;
 
-		bool ConflictsWith(ICollection uncommittedEvents, ICollection committedEvents);
+        bool ConflictsWith(IEnumerable<object> uncommittedEvents, IEnumerable<object> committedEvents);
 	}
 
 	public delegate bool ConflictDelegate(object uncommitted, object committed);

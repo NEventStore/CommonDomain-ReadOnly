@@ -107,7 +107,10 @@ namespace CommonDomain.Persistence.EventStore
 			foreach (var item in headers)
 				stream.UncommittedHeaders[item.Key] = item.Value;
 
-			stream.Add(saga.GetUncommittedEvents());
+            var events = saga.GetUncommittedEvents().Cast<object>()
+                .Select(x => new EventMessage { Body = x }).ToList();
+
+            events.ForEach(stream.Add);
 
 			return stream;
 		}

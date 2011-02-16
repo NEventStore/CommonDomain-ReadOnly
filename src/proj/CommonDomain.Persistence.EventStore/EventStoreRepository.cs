@@ -125,8 +125,11 @@ namespace CommonDomain.Persistence.EventStore
 			foreach (var item in headers)
 				stream.UncommittedHeaders[item.Key] = item.Value;
 
-			stream.Add(aggregate.GetUncommittedEvents());
+		    var events = aggregate.GetUncommittedEvents().Cast<object>()
+		        .Select(x => new EventMessage {Body = x}).ToList();
 
+            events.ForEach(stream.Add);
+			
 			aggregate.ClearUncommittedEvents();
 
 			return stream;
@@ -143,8 +146,8 @@ namespace CommonDomain.Persistence.EventStore
 		}
 		private bool ThrowOnConflict(IEventStream stream, int skip)
 		{
-			var committed = stream.CommittedEvents.Skip(skip).Select(x => x.Body) as ICollection;
-			var uncommitted = stream.UncommittedEvents.Select(x => x.Body) as ICollection;
+			var committed = stream.CommittedEvents.Skip(skip).Select(x => x.Body);
+			var uncommitted = stream.UncommittedEvents.Select(x => x.Body);
 			return this.conflictDetector.ConflictsWith(uncommitted, committed);
 		}
 	}

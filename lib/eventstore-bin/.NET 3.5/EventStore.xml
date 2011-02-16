@@ -107,29 +107,11 @@
             This class is single threaded and should not be shared between threads.
             </remarks>
     </member>
-    <member name="M:EventStore.IEventStream.Add(EventStore.EventMessage[])">
+    <member name="M:EventStore.IEventStream.Add(EventStore.EventMessage)">
       <summary>
             Adds the event messages provided to the session to be tracked.
             </summary>
-      <param name="uncommittedEvents">The events to be tracked.</param>
-    </member>
-    <member name="M:EventStore.IEventStream.Add(System.Object[])">
-      <summary>
-            Adds the event messages provided to the session to be tracked.
-            </summary>
-      <param name="uncommittedEvents">The events to be tracked.</param>
-    </member>
-    <member name="M:EventStore.IEventStream.Add(System.Collections.Generic.IEnumerable{EventStore.EventMessage})">
-      <summary>
-            Adds the event messages provided to the session to be tracked.
-            </summary>
-      <param name="uncommittedEvents">The events to be tracked.</param>
-    </member>
-    <member name="M:EventStore.IEventStream.Add(System.Collections.Generic.IEnumerable{System.Object})">
-      <summary>
-            Adds the event messages provided to the session to be tracked.
-            </summary>
-      <param name="uncommittedEvents">The events to be tracked.</param>
+      <param name="uncommittedEvent">The event to be tracked.</param>
     </member>
     <member name="M:EventStore.IEventStream.CommitChanges(System.Guid)">
       <summary>
