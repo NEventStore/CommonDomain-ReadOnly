@@ -6,7 +6,7 @@ namespace CommonDomain.Core
 	public class RegistrationEventRouter<TEvent> : IRouteEvents<TEvent>
 	{
 		private readonly IDictionary<Type, Action<TEvent>> handlers = new Dictionary<Type, Action<TEvent>>();
-		
+
 		public virtual void Register<TEventMessage>(Action<TEventMessage> handler) where TEventMessage : TEvent
 		{
 			this.handlers[typeof(TEventMessage)] = @event => handler((TEventMessage)@event);

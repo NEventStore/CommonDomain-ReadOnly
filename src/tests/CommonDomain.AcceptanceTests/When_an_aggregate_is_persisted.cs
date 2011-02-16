@@ -18,7 +18,7 @@ namespace CommonDomain.AcceptanceTests
 		static TestAggregate aggregate;
 
 		Establish context = () => aggregate = new TestAggregate(id, "Some name");
-			
+
 		Because of = () =>
 			repository.Save(aggregate, Guid.NewGuid(), null);
 
@@ -42,7 +42,7 @@ namespace CommonDomain.AcceptanceTests
 
 			repository.Save(aggregate, Guid.NewGuid(), null);
 		};
-		  
+		
 		It should_the_version_number_should_increase = () =>
 			repository.GetById<TestAggregate>(Id, 0).Version.ShouldEqual(2);
 

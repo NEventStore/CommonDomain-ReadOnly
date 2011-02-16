@@ -44,10 +44,10 @@ namespace CommonDomain.AcceptanceTests
 	public class When_dispatching_a_message_with_a_registered_aggregate_that_has_a_matching_apply_method_with_multiple_parameters :
 		With_a_convention_event_router_and_registered_aggregate<object>
 	{
-		Because of = () => 
+		Because of = () =>
 			router.Dispatch(new MessageD());
 
-		It should_not_call_the_apply_method = () => 
+		It should_not_call_the_apply_method = () =>
 			aggregate.ApplyForMessageDCalled.ShouldBeFalse();
 	}
 
@@ -55,10 +55,10 @@ namespace CommonDomain.AcceptanceTests
 	public class When_dispatching_a_message_with_a_registered_aggregate_that_has_a_matching_apply_method_that_does_not_return_void :
 		With_a_convention_event_router_and_registered_aggregate<object>
 	{
-		Because of = () => 
+		Because of = () =>
 			router.Dispatch(new MessageE());
 
-		It should_not_call_the_apply_method = () => 
+		It should_not_call_the_apply_method = () =>
 			aggregate.ApplyForMessageECalled.ShouldBeFalse();
 	}
 
@@ -83,7 +83,7 @@ namespace CommonDomain.AcceptanceTests
 	public class When_dispatching_a_message_with_a_registered_aggregate_that_has_a_matching_apply_method_and_a_manually_registered_handler :
 		With_a_convention_event_router_and_registered_aggregate<object>
 	{
-		Establish context = () => 
+		Establish context = () =>
 			router.Register<MessageA>(m => { });
 
 		Because of = () =>
@@ -95,7 +95,7 @@ namespace CommonDomain.AcceptanceTests
 		It should_call_the_manual_handler = () =>
 			aggregate.ApplyForMessageACalled.ShouldBeFalse();
 	}
-	
+
 	public class With_a_convention_event_router_and_registered_aggregate<TEvent>
 	{
 		protected static ConventionEventRouter<TEvent> router;

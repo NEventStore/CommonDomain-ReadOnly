@@ -1,7 +1,6 @@
 namespace CommonDomain.Persistence.EventStore
 {
 	using System;
-	using System.Collections;
 	using System.Collections.Generic;
 	using System.Linq;
 	using global::EventStore;
@@ -98,7 +97,7 @@ namespace CommonDomain.Persistence.EventStore
 			{
 				stream.CommitChanges(commitId);
 			}
-			catch (DuplicateCommitException) 
+			catch (DuplicateCommitException)
 			{
 				stream.ClearChanges();
 			}
@@ -125,11 +124,12 @@ namespace CommonDomain.Persistence.EventStore
 			foreach (var item in headers)
 				stream.UncommittedHeaders[item.Key] = item.Value;
 
-		    var events = aggregate.GetUncommittedEvents().Cast<object>()
-		        .Select(x => new EventMessage {Body = x}).ToList();
+			aggregate.GetUncommittedEvents()
+				.Cast<object>()
+				.Select(x => new EventMessage { Body = x })
+				.ToList()
+				.ForEach(stream.Add);
 
-            events.ForEach(stream.Add);
-			
 			aggregate.ClearUncommittedEvents();
 
 			return stream;

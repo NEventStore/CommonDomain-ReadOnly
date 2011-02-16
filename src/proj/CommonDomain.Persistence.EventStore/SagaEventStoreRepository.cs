@@ -98,7 +98,7 @@ namespace CommonDomain.Persistence.EventStore
 
 			return headers;
 		}
-		private IEventStream PrepareStream(ISaga saga , Dictionary<string, object> headers)
+		private IEventStream PrepareStream(ISaga saga, Dictionary<string, object> headers)
 		{
 			IEventStream stream;
 			if (!this.streams.TryGetValue(saga.Id, out stream))
@@ -107,10 +107,11 @@ namespace CommonDomain.Persistence.EventStore
 			foreach (var item in headers)
 				stream.UncommittedHeaders[item.Key] = item.Value;
 
-            var events = saga.GetUncommittedEvents().Cast<object>()
-                .Select(x => new EventMessage { Body = x }).ToList();
-
-            events.ForEach(stream.Add);
+			saga.GetUncommittedEvents()
+				.Cast<object>()
+				.Select(x => new EventMessage { Body = x })
+				.ToList()
+				.ForEach(stream.Add);
 
 			return stream;
 		}
@@ -127,7 +128,7 @@ namespace CommonDomain.Persistence.EventStore
 			catch (StorageException e)
 			{
 				throw new PersistenceException(e.Message, e);
-			}	
+			}
 		}
 	}
 }

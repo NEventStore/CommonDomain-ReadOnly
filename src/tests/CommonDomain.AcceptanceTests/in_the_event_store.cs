@@ -25,7 +25,7 @@ namespace CommonDomain.AcceptanceTests
 		{
 			engine = new InMemoryPersistenceEngine();
 			engine.Initialize();
-		   
+		
 			publishedEvents = new List<IDomainEvent>();
 
 			eventStore = new OptimisticEventStore(engine, new SynchronousDispatcher(new FakeBus(publishedEvents), engine));
