@@ -88,12 +88,15 @@ namespace CommonDomain.AcceptanceTests
 
 		static EventStoreRepository repository1;
 		static EventStoreRepository repository2;
+		private static ConflictDetector conflictDetector;
 
 		Establish context = () =>
 		{
 			repository.Save(new TestAggregate(Id, "Some name"), Guid.NewGuid(), null); // 1
-			repository1 = new EventStoreRepository(eventStore, new AggregateFactory(), new ConflictDetector());
-			repository2 = new EventStoreRepository(eventStore, new AggregateFactory(), new ConflictDetector());
+			conflictDetector = new ConflictDetector();
+			conflictDetector.Register<NameChangedEvent, NameChangedEvent>((event1, event2) => false);
+			repository1 = new EventStoreRepository(eventStore, new AggregateFactory(), conflictDetector);
+			repository2 = new EventStoreRepository(eventStore, new AggregateFactory(), conflictDetector);
 		};
 		Because of = () =>
 		{
@@ -113,6 +116,10 @@ namespace CommonDomain.AcceptanceTests
 
 			// simulate thread2 - this should throw a concurrency exception and force a single retry
 			repository2.Save(aggregate2, Guid.NewGuid(), null);
+
+			// re-open repository 1 to clear it's cache
+			repository1.Dispose();
+			repository1 = new EventStoreRepository(eventStore, new AggregateFactory(), conflictDetector);
 		};
 
 		It should_increase_the_version_number_for_both_repositories = () =>
@@ -122,7 +129,7 @@ namespace CommonDomain.AcceptanceTests
 		};
 
 		It should_update_the_aggregate_with_the_last_commit = () =>
-			repository.GetById<TestAggregate>(Id, 0).Name.ShouldEqual(FinalName);
+			repository1.GetById<TestAggregate>(Id, 0).Name.ShouldEqual(FinalName);
 	}
 
 	[Subject("Persistence")]
@@ -135,12 +142,15 @@ namespace CommonDomain.AcceptanceTests
 
 		static EventStoreRepository repository1;
 		static EventStoreRepository repository2;
+		static ConflictDetector conflictDetector;
 
 		Establish context = () =>
 		{
 			repository.Save(new TestAggregate(Id, "Some name"), Guid.NewGuid(), null); // 1
-			repository1 = new EventStoreRepository(eventStore, new AggregateFactory(), new ConflictDetector());
-			repository2 = new EventStoreRepository(eventStore, new AggregateFactory(), new ConflictDetector());
+			conflictDetector = new ConflictDetector();
+			conflictDetector.Register<NameChangedEvent, NameChangedEvent>((event1, event2) => false);
+			repository1 = new EventStoreRepository(eventStore, new AggregateFactory(), conflictDetector);
+			repository2 = new EventStoreRepository(eventStore, new AggregateFactory(), conflictDetector);
 		};
 		Because of = () =>
 		{
@@ -164,6 +174,10 @@ namespace CommonDomain.AcceptanceTests
 
 			// simulate thread2 - this should throw a concurrency exception and force a single retry
 			repository2.Save(aggregate2, Guid.NewGuid(), null);
+
+			// re-open repository 1 to clear it's cache
+			repository1.Dispose();
+			repository1 = new EventStoreRepository(eventStore, new AggregateFactory(), conflictDetector);
 		};
 
 		It should_increase_the_version_number_for_both_repositories = () =>
@@ -173,7 +187,7 @@ namespace CommonDomain.AcceptanceTests
 		};
 
 		It should_update_the_aggregate_with_the_last_commit = () =>
-			repository.GetById<TestAggregate>(Id, 0).Name.ShouldEqual(FinalName);
+			repository1.GetById<TestAggregate>(Id, 0).Name.ShouldEqual(FinalName);
 	}
 
 	/// <summary>
@@ -200,8 +214,10 @@ namespace CommonDomain.AcceptanceTests
 			eventStore1 = new OptimisticEventStore(engine, new SynchronousDispatcher(new FakeBus(publishedEvents1), engine));
 			eventStore2 = new OptimisticEventStore(engine, new SynchronousDispatcher(new FakeBus(publishedEvents2), engine));
 
-			repository1 = new EventStoreRepository(eventStore1, new AggregateFactory(), new ConflictDetector());
-			repository2 = new EventStoreRepository(eventStore2, new AggregateFactory(), new ConflictDetector());
+            var conflictDetector = new ConflictDetector();
+            conflictDetector.Register<NameChangedEvent, NameChangedEvent>((event1, event2) => false);
+            repository1 = new EventStoreRepository(eventStore, new AggregateFactory(), conflictDetector);
+            repository2 = new EventStoreRepository(eventStore, new AggregateFactory(), conflictDetector);
 
 			repository1.Save(new TestAggregate(Id, "Some name"), Guid.NewGuid(), null);
 		};
