@@ -96,6 +96,7 @@ namespace CommonDomain.Persistence.EventStore
 			try
 			{
 				stream.CommitChanges(commitId);
+				aggregate.ClearUncommittedEvents();
 			}
 			catch (DuplicateCommitException)
 			{
@@ -129,8 +130,6 @@ namespace CommonDomain.Persistence.EventStore
 				.Select(x => new EventMessage { Body = x })
 				.ToList()
 				.ForEach(stream.Add);
-
-			aggregate.ClearUncommittedEvents();
 
 			return stream;
 		}
