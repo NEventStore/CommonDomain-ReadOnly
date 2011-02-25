@@ -49,8 +49,18 @@ namespace CommonDomain.Core
 					string.Format("Cannot dispatch message. Message must be of type {0}", typeof(TEvent)), "eventMessage");
 
 			Action<TEvent> handler;
-			if (this.handlers.TryGetValue(eventMessage.GetType(), out handler))
-				handler((TEvent)eventMessage);
+            if (this.handlers.TryGetValue(eventMessage.GetType(), out handler))
+            {
+                handler((TEvent)eventMessage);
+            }
+            else
+            {
+                // protect from cases when the Apply Handler is not implemented or is implemented with a 
+                // wrong signature
+                throw new ArgumentException(
+                    string.Format("Cannot apply message to aggregate instance. The aggregate must define a method called void Apply({0} @event)",
+                    eventMessage.GetType().Name));
+            }
 		}
 
 		private void Register(Type messageType, Action<TEvent> handler)
