@@ -34,6 +34,36 @@
       <param name="info">The SerializationInfo that holds the serialized object data of the exception being thrown.</param>
       <param name="context">The StreamingContext that contains contextual information about the source or destination.</param>
     </member>
+    <member name="T:EventStore.Persistence.StorageOfflineException">
+      <summary>
+            Indicates that the underlying persistence medium is unavailable or offline.
+            </summary>
+    </member>
+    <member name="M:EventStore.Persistence.StorageOfflineException.#ctor">
+      <summary>
+            Initializes a new instance of the StorageOfflineException class.
+            </summary>
+    </member>
+    <member name="M:EventStore.Persistence.StorageOfflineException.#ctor(System.String)">
+      <summary>
+            Initializes a new instance of the StorageOfflineException class.
+            </summary>
+      <param name="message">The message that describes the error.</param>
+    </member>
+    <member name="M:EventStore.Persistence.StorageOfflineException.#ctor(System.String,System.Exception)">
+      <summary>
+            Initializes a new instance of the StorageOfflineException class.
+            </summary>
+      <param name="message">The message that describes the error.</param>
+      <param name="innerException">The message that is the cause of the current exception.</param>
+    </member>
+    <member name="M:EventStore.Persistence.StorageOfflineException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Initializes a new instance of the StorageOfflineException class.
+            </summary>
+      <param name="info">The SerializationInfo that holds the serialized object data of the exception being thrown.</param>
+      <param name="context">The StreamingContext that contains contextual information about the source or destination.</param>
+    </member>
     <member name="T:EventStore.StreamNotFoundException">
       <summary>
             Represents an attempt to commit the same information more than once.
