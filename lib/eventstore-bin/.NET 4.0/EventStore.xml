@@ -99,10 +99,11 @@
             Provides the ability to serialize an object graph to and from a document.
             </summary>
     </member>
-    <member name="M:EventStore.Serialization.IDocumentSerializer.Serialize(System.Object)">
+    <member name="M:EventStore.Serialization.IDocumentSerializer.Serialize``1(``0)">
       <summary>
             Serializes the object graph provided into a document.
             </summary>
+      <typeparam name="T">The type of object to be serialized</typeparam>
       <param name="graph">The object graph to be serialized.</param>
       <returns>The document form of the graph provided.</returns>
     </member>
@@ -398,10 +399,11 @@
             Provides the ability to serialize and deserialize an object graph.
             </summary>
     </member>
-    <member name="M:EventStore.Serialization.ISerialize.Serialize(System.IO.Stream,System.Object)">
+    <member name="M:EventStore.Serialization.ISerialize.Serialize``1(System.IO.Stream,``0)">
       <summary>
             Serializes the object graph provided and writes a serialized representation to the output stream provided.
             </summary>
+      <typeparam name="T">The type of object to be serialized</typeparam>
       <param name="output">The stream into which the serialized object graph should be written.</param>
       <param name="graph">The object graph to be serialized.</param>
     </member>
@@ -489,10 +491,11 @@
             Implements extension methods that make call to the serialization infrastructure more simple.
             </summary>
     </member>
-    <member name="M:EventStore.Serialization.SerializationExtensions.Serialize(EventStore.Serialization.ISerialize,System.Object)">
+    <member name="M:EventStore.Serialization.SerializationExtensions.Serialize``1(EventStore.Serialization.ISerialize,``0)">
       <summary>
             Serializes the object provided.
             </summary>
+      <typeparam name="T">The type of object to be serialized</typeparam>
       <param name="serializer">The serializer to use.</param>
       <param name="value">The object graph to be serialized.</param>
       <returns>A serialized representation of the object graph provided.</returns>
