@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonDomain.Persistence", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonDomain.Persistence.EventStore", "proj\CommonDomain.Persistence.EventStore\CommonDomain.Persistence.EventStore.csproj", "{F489D9D1-F275-4018-A86F-D84352BCD4E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonDomain.AcceptanceTests", "tests\CommonDomain.AcceptanceTests\CommonDomain.AcceptanceTests.csproj", "{115A8436-93A0-4481-802C-CBC15285FF4E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,10 +35,6 @@ Global
 		{F489D9D1-F275-4018-A86F-D84352BCD4E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F489D9D1-F275-4018-A86F-D84352BCD4E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F489D9D1-F275-4018-A86F-D84352BCD4E9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{115A8436-93A0-4481-802C-CBC15285FF4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{115A8436-93A0-4481-802C-CBC15285FF4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{115A8436-93A0-4481-802C-CBC15285FF4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{115A8436-93A0-4481-802C-CBC15285FF4E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,6 +44,5 @@ Global
 		{51C99F4D-CCF0-431A-B37C-D620EF1DF37B} = {06FD3DEE-6B33-408C-AFE4-6FADE5525AB0}
 		{75C8F482-B38D-428C-AD67-890B40E35A63} = {06FD3DEE-6B33-408C-AFE4-6FADE5525AB0}
 		{F489D9D1-F275-4018-A86F-D84352BCD4E9} = {06FD3DEE-6B33-408C-AFE4-6FADE5525AB0}
-		{115A8436-93A0-4481-802C-CBC15285FF4E} = {092DA80E-4854-41FD-91F7-D996F41419F2}
 	EndGlobalSection
 EndGlobal
