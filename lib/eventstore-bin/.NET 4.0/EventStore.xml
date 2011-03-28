@@ -34,6 +34,31 @@
       <param name="info">The SerializationInfo that holds the serialized object data of the exception being thrown.</param>
       <param name="context">The StreamingContext that contains contextual information about the source or destination.</param>
     </member>
+    <member name="T:EventStore.IPipelineHook">
+      <summary>
+            Provides the ability to hook into the pipeline of persisting a commit.
+            </summary>
+    </member>
+    <member name="M:EventStore.IPipelineHook.Select(EventStore.Commit)">
+      <summary>
+            Hooks into the selection pipeline just prior to the commit being returned to the caller.
+            </summary>
+      <param name="committed">The commit to be filtered.</param>
+      <returns>If successful, returns a populated commit; otherwise returns null.</returns>
+    </member>
+    <member name="M:EventStore.IPipelineHook.PreCommit(EventStore.Commit)">
+      <summary>
+            Hooks into the commit pipeline prior to persisting the commit to durable storage.
+            </summary>
+      <param name="attempt">The attempt to be committed.</param>
+      <returns>If processing should continue, returns true; otherwise returns false.</returns>
+    </member>
+    <member name="M:EventStore.IPipelineHook.PostCommit(EventStore.Commit)">
+      <summary>
+            Hooks into the commit pipeline just after the commit has been *successfully* committed to durable storage.
+            </summary>
+      <param name="committed">The commit which has been persisted.</param>
+    </member>
     <member name="T:EventStore.Persistence.StorageException">
       <summary>
             Represents a general failure of the storage engine or persistence infrastructure.
@@ -171,6 +196,7 @@
       <param name="maxRevision">The maximum revision of the stream to be read.</param>
       <returns>A series of committed events from the stream specified sorted in ascending order..</returns>
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="M:EventStore.ICommitEvents.Commit(EventStore.Commit)">
       <summary>
@@ -179,6 +205,7 @@
       <param name="attempt">The series of events and associated metadata to be commited.</param>
       <exception cref="T:EventStore.ConcurrencyException" />
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="T:EventStore.IEventStream">
       <summary>
@@ -202,6 +229,7 @@
       <exception cref="T:EventStore.DuplicateCommitException" />
       <exception cref="T:EventStore.ConcurrencyException" />
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="M:EventStore.IEventStream.ClearChanges">
       <summary>
@@ -251,6 +279,7 @@
       <param name="maxRevision">The maximum revision possible for the desired snapshot.</param>
       <returns>If found, it returns the snapshot; otherwise null is returned.</returns>
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="M:EventStore.IAccessSnapshots.AddSnapshot(EventStore.Snapshot)">
       <summary>
@@ -259,6 +288,7 @@
       <param name="snapshot">The snapshot to save.</param>
       <returns>If the snapshot was added, returns true; otherwise false.</returns>
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="T:EventStore.IStoreEvents">
       <summary>
@@ -282,6 +312,7 @@
       <param name="maxRevision">The maximum revision of the stream to be read.</param>
       <returns>A series of committed events represented as a stream.</returns>
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
       <exception cref="T:EventStore.StreamNotFoundException" />
     </member>
     <member name="M:EventStore.IStoreEvents.OpenStream(EventStore.Snapshot,System.Int32)">
@@ -292,6 +323,7 @@
       <param name="maxRevision">The maximum revision of the stream to be read.</param>
       <returns>A series of committed events represented as a stream.</returns>
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="T:EventStore.EventMessage">
       <summary>
@@ -455,6 +487,7 @@
             Initializes and prepares the storage for use, if not already performed.
             </summary>
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="M:EventStore.Persistence.IPersistStreams.GetFrom(System.DateTime)">
       <summary>
@@ -463,6 +496,7 @@
       <param name="start">The point in time at which to start.</param>
       <returns>All commits that have occurred on or after the specified starting time.</returns>
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="M:EventStore.Persistence.IPersistStreams.GetUndispatchedCommits">
       <summary>
@@ -470,6 +504,7 @@
             </summary>
       <returns>The set of commits to be dispatched.</returns>
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="M:EventStore.Persistence.IPersistStreams.MarkCommitAsDispatched(EventStore.Commit)">
       <summary>
@@ -477,6 +512,7 @@
             </summary>
       <param name="commit">The commit to be marked as dispatched.</param>
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="M:EventStore.Persistence.IPersistStreams.GetStreamsToSnapshot(System.Int32)">
       <summary>
@@ -485,6 +521,7 @@
       <param name="maxThreshold">The maximum difference between the head and most recent snapshot revisions.</param>
       <returns>The streams for which the head and snapshot revisions differ by at least the threshold specified.</returns>
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="T:EventStore.Serialization.SerializationExtensions">
       <summary>
