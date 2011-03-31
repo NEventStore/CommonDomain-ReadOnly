@@ -34,35 +34,111 @@
       <param name="info">The SerializationInfo that holds the serialized object data of the exception being thrown.</param>
       <param name="context">The StreamingContext that contains contextual information about the source or destination.</param>
     </member>
-    <member name="T:EventStore.Persistence.StorageOfflineException">
+    <member name="T:EventStore.IPipelineHook">
       <summary>
-            Indicates that the underlying persistence medium is unavailable or offline.
+            Provides the ability to hook into the pipeline of persisting a commit.
             </summary>
     </member>
-    <member name="M:EventStore.Persistence.StorageOfflineException.#ctor">
+    <member name="M:EventStore.IPipelineHook.Select(EventStore.Commit)">
       <summary>
-            Initializes a new instance of the StorageOfflineException class.
+            Hooks into the selection pipeline just prior to the commit being returned to the caller.
+            </summary>
+      <param name="committed">The commit to be filtered.</param>
+      <returns>If successful, returns a populated commit; otherwise returns null.</returns>
+    </member>
+    <member name="M:EventStore.IPipelineHook.PreCommit(EventStore.Commit)">
+      <summary>
+            Hooks into the commit pipeline prior to persisting the commit to durable storage.
+            </summary>
+      <param name="attempt">The attempt to be committed.</param>
+      <returns>If processing should continue, returns true; otherwise returns false.</returns>
+    </member>
+    <member name="M:EventStore.IPipelineHook.PostCommit(EventStore.Commit)">
+      <summary>
+            Hooks into the commit pipeline just after the commit has been *successfully* committed to durable storage.
+            </summary>
+      <param name="committed">The commit which has been persisted.</param>
+    </member>
+    <member name="T:EventStore.Persistence.StorageException">
+      <summary>
+            Represents a general failure of the storage engine or persistence infrastructure.
             </summary>
     </member>
-    <member name="M:EventStore.Persistence.StorageOfflineException.#ctor(System.String)">
+    <member name="M:EventStore.Persistence.StorageException.#ctor">
       <summary>
-            Initializes a new instance of the StorageOfflineException class.
+            Initializes a new instance of the StorageException class.
+            </summary>
+    </member>
+    <member name="M:EventStore.Persistence.StorageException.#ctor(System.String)">
+      <summary>
+            Initializes a new instance of the StorageException class.
             </summary>
       <param name="message">The message that describes the error.</param>
     </member>
-    <member name="M:EventStore.Persistence.StorageOfflineException.#ctor(System.String,System.Exception)">
+    <member name="M:EventStore.Persistence.StorageException.#ctor(System.String,System.Exception)">
       <summary>
-            Initializes a new instance of the StorageOfflineException class.
+            Initializes a new instance of the StorageException class.
             </summary>
       <param name="message">The message that describes the error.</param>
       <param name="innerException">The message that is the cause of the current exception.</param>
     </member>
-    <member name="M:EventStore.Persistence.StorageOfflineException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+    <member name="M:EventStore.Persistence.StorageException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
       <summary>
-            Initializes a new instance of the StorageOfflineException class.
+            Initializes a new instance of the StorageException class.
             </summary>
       <param name="info">The SerializationInfo that holds the serialized object data of the exception being thrown.</param>
       <param name="context">The StreamingContext that contains contextual information about the source or destination.</param>
+    </member>
+    <member name="T:EventStore.Persistence.StorageUnavailableException">
+      <summary>
+            Indicates that the underlying persistence medium is unavailable or offline.
+            </summary>
+    </member>
+    <member name="M:EventStore.Persistence.StorageUnavailableException.#ctor">
+      <summary>
+            Initializes a new instance of the StorageUnavailableException class.
+            </summary>
+    </member>
+    <member name="M:EventStore.Persistence.StorageUnavailableException.#ctor(System.String)">
+      <summary>
+            Initializes a new instance of the StorageUnavailableException class.
+            </summary>
+      <param name="message">The message that describes the error.</param>
+    </member>
+    <member name="M:EventStore.Persistence.StorageUnavailableException.#ctor(System.String,System.Exception)">
+      <summary>
+            Initializes a new instance of the StorageUnavailableException class.
+            </summary>
+      <param name="message">The message that describes the error.</param>
+      <param name="innerException">The message that is the cause of the current exception.</param>
+    </member>
+    <member name="M:EventStore.Persistence.StorageUnavailableException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Initializes a new instance of the StorageUnavailableException class.
+            </summary>
+      <param name="info">The SerializationInfo that holds the serialized object data of the exception being thrown.</param>
+      <param name="context">The StreamingContext that contains contextual information about the source or destination.</param>
+    </member>
+    <member name="T:EventStore.Serialization.IDocumentSerializer">
+      <summary>
+            Provides the ability to serialize an object graph to and from a document.
+            </summary>
+    </member>
+    <member name="M:EventStore.Serialization.IDocumentSerializer.Serialize``1(``0)">
+      <summary>
+            Serializes the object graph provided into a document.
+            </summary>
+      <typeparam name="T">The type of object to be serialized</typeparam>
+      <param name="graph">The object graph to be serialized.</param>
+      <returns>The document form of the graph provided.</returns>
+    </member>
+    <member name="M:EventStore.Serialization.IDocumentSerializer.Deserialize``1(System.Object)">
+      <summary>
+            Deserializes the document provided into an object graph.
+            </summary>
+      <typeparam name="T">The type of object graph.</typeparam>
+      <param name="document">The document to be deserialized.</param>
+      <returns>An object graph of the specified type.</returns>
     </member>
     <member name="T:EventStore.StreamNotFoundException">
       <summary>
@@ -120,6 +196,7 @@
       <param name="maxRevision">The maximum revision of the stream to be read.</param>
       <returns>A series of committed events from the stream specified sorted in ascending order..</returns>
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="M:EventStore.ICommitEvents.Commit(EventStore.Commit)">
       <summary>
@@ -128,6 +205,7 @@
       <param name="attempt">The series of events and associated metadata to be commited.</param>
       <exception cref="T:EventStore.ConcurrencyException" />
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="T:EventStore.IEventStream">
       <summary>
@@ -151,6 +229,7 @@
       <exception cref="T:EventStore.DuplicateCommitException" />
       <exception cref="T:EventStore.ConcurrencyException" />
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="M:EventStore.IEventStream.ClearChanges">
       <summary>
@@ -200,6 +279,7 @@
       <param name="maxRevision">The maximum revision possible for the desired snapshot.</param>
       <returns>If found, it returns the snapshot; otherwise null is returned.</returns>
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="M:EventStore.IAccessSnapshots.AddSnapshot(EventStore.Snapshot)">
       <summary>
@@ -208,6 +288,7 @@
       <param name="snapshot">The snapshot to save.</param>
       <returns>If the snapshot was added, returns true; otherwise false.</returns>
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="T:EventStore.IStoreEvents">
       <summary>
@@ -231,6 +312,7 @@
       <param name="maxRevision">The maximum revision of the stream to be read.</param>
       <returns>A series of committed events represented as a stream.</returns>
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
       <exception cref="T:EventStore.StreamNotFoundException" />
     </member>
     <member name="M:EventStore.IStoreEvents.OpenStream(EventStore.Snapshot,System.Int32)">
@@ -241,6 +323,7 @@
       <param name="maxRevision">The maximum revision of the stream to be read.</param>
       <returns>A series of committed events represented as a stream.</returns>
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="T:EventStore.EventMessage">
       <summary>
@@ -348,10 +431,11 @@
             Provides the ability to serialize and deserialize an object graph.
             </summary>
     </member>
-    <member name="M:EventStore.Serialization.ISerialize.Serialize(System.IO.Stream,System.Object)">
+    <member name="M:EventStore.Serialization.ISerialize.Serialize``1(System.IO.Stream,``0)">
       <summary>
             Serializes the object graph provided and writes a serialized representation to the output stream provided.
             </summary>
+      <typeparam name="T">The type of object to be serialized</typeparam>
       <param name="output">The stream into which the serialized object graph should be written.</param>
       <param name="graph">The object graph to be serialized.</param>
     </member>
@@ -403,6 +487,7 @@
             Initializes and prepares the storage for use, if not already performed.
             </summary>
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="M:EventStore.Persistence.IPersistStreams.GetFrom(System.DateTime)">
       <summary>
@@ -411,6 +496,7 @@
       <param name="start">The point in time at which to start.</param>
       <returns>All commits that have occurred on or after the specified starting time.</returns>
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="M:EventStore.Persistence.IPersistStreams.GetUndispatchedCommits">
       <summary>
@@ -418,6 +504,7 @@
             </summary>
       <returns>The set of commits to be dispatched.</returns>
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="M:EventStore.Persistence.IPersistStreams.MarkCommitAsDispatched(EventStore.Commit)">
       <summary>
@@ -425,6 +512,7 @@
             </summary>
       <param name="commit">The commit to be marked as dispatched.</param>
       <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="M:EventStore.Persistence.IPersistStreams.GetStreamsToSnapshot(System.Int32)">
       <summary>
@@ -433,46 +521,18 @@
       <param name="maxThreshold">The maximum difference between the head and most recent snapshot revisions.</param>
       <returns>The streams for which the head and snapshot revisions differ by at least the threshold specified.</returns>
       <exception cref="T:EventStore.Persistence.StorageException" />
-    </member>
-    <member name="T:EventStore.Persistence.StorageException">
-      <summary>
-            Represents a general failure of the storage engine or persistence infrastructure.
-            </summary>
-    </member>
-    <member name="M:EventStore.Persistence.StorageException.#ctor">
-      <summary>
-            Initializes a new instance of the StorageException class.
-            </summary>
-    </member>
-    <member name="M:EventStore.Persistence.StorageException.#ctor(System.String)">
-      <summary>
-            Initializes a new instance of the StorageException class.
-            </summary>
-      <param name="message">The message that describes the error.</param>
-    </member>
-    <member name="M:EventStore.Persistence.StorageException.#ctor(System.String,System.Exception)">
-      <summary>
-            Initializes a new instance of the StorageException class.
-            </summary>
-      <param name="message">The message that describes the error.</param>
-      <param name="innerException">The message that is the cause of the current exception.</param>
-    </member>
-    <member name="M:EventStore.Persistence.StorageException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
-      <summary>
-            Initializes a new instance of the StorageException class.
-            </summary>
-      <param name="info">The SerializationInfo that holds the serialized object data of the exception being thrown.</param>
-      <param name="context">The StreamingContext that contains contextual information about the source or destination.</param>
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
     <member name="T:EventStore.Serialization.SerializationExtensions">
       <summary>
             Implements extension methods that make call to the serialization infrastructure more simple.
             </summary>
     </member>
-    <member name="M:EventStore.Serialization.SerializationExtensions.Serialize(EventStore.Serialization.ISerialize,System.Object)">
+    <member name="M:EventStore.Serialization.SerializationExtensions.Serialize``1(EventStore.Serialization.ISerialize,``0)">
       <summary>
             Serializes the object provided.
             </summary>
+      <typeparam name="T">The type of object to be serialized</typeparam>
       <param name="serializer">The serializer to use.</param>
       <param name="value">The object graph to be serialized.</param>
       <returns>A serialized representation of the object graph provided.</returns>
