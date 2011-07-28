@@ -90,29 +90,33 @@ namespace CommonDomain.Persistence.EventStore
 		public virtual void Save(IAggregate aggregate, Guid commitId, Action<IDictionary<string, object>> updateHeaders)
 		{
 			var headers = PrepareHeaders(aggregate, updateHeaders);
-			var stream = this.PrepareStream(aggregate, headers);
-			var commitEventCount = stream.CommittedEvents.Count;
+			while (true)
+			{
+				var stream = this.PrepareStream(aggregate, headers);
+				var commitEventCount = stream.CommittedEvents.Count;
 
-			try
-			{
-				stream.CommitChanges(commitId);
-			}
-			catch (DuplicateCommitException)
-			{
-				stream.ClearChanges();
-			}
-			catch (ConcurrencyException e)
-			{
-				if (this.ThrowOnConflict(stream, commitEventCount))
-					throw new ConflictingCommandException(e.Message, e);
+				try
+				{
+					stream.CommitChanges(commitId);
+					aggregate.ClearUncommittedEvents();
+					return;
+				}
+				catch (DuplicateCommitException)
+				{
+					stream.ClearChanges();
+					return;
+				}
+				catch (ConcurrencyException e)
+				{
+					if (this.ThrowOnConflict(stream, commitEventCount))
+						throw new ConflictingCommandException(e.Message, e);
 
-				stream.ClearChanges();
-
-				this.Save(aggregate, commitId, updateHeaders);
-			}
-			catch (StorageException e)
-			{
-				throw new PersistenceException(e.Message, e);
+					stream.ClearChanges();
+				}
+				catch (StorageException e)
+				{
+					throw new PersistenceException(e.Message, e);
+				}
 			}
 		}
 		private IEventStream PrepareStream(IAggregate aggregate, Dictionary<string, object> headers)
@@ -129,8 +133,6 @@ namespace CommonDomain.Persistence.EventStore
 				.Select(x => new EventMessage { Body = x })
 				.ToList()
 				.ForEach(stream.Add);
-
-			aggregate.ClearUncommittedEvents();
 
 			return stream;
 		}
