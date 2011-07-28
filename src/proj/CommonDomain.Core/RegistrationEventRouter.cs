@@ -3,14 +3,14 @@ namespace CommonDomain.Core
 	using System;
 	using System.Collections.Generic;
 
-	public class RegistrationEventRouter<TEvent> : IRouteEvents<TEvent>
+	public class RegistrationEventRouter : IRouteEvents
 	{
-		private readonly IDictionary<Type, Action<TEvent>> handlers = new Dictionary<Type, Action<TEvent>>();
+		private readonly IDictionary<Type, Action<object>> handlers = new Dictionary<Type, Action<object>>();
 		private IAggregate regsitered;
 
-		public virtual void Register<TEventMessage>(Action<TEventMessage> handler) where TEventMessage : TEvent
+		public virtual void Register<T>(Action<T> handler)
 		{
-			this.handlers[typeof(TEventMessage)] = @event => handler((TEventMessage)@event);
+			this.handlers[typeof(T)] = @event => handler((T)@event);
 		}
 		public virtual void Register(IAggregate aggregate)
 		{
@@ -22,12 +22,12 @@ namespace CommonDomain.Core
 
 		public virtual void Dispatch(object eventMessage)
 		{
-			Action<TEvent> handler;
+			Action<object> handler;
 
 			if (!this.handlers.TryGetValue(eventMessage.GetType(), out handler))
 				this.regsitered.ThrowHandlerNotFound(eventMessage);
 
-			handler((TEvent)eventMessage);
+			handler(eventMessage);
 		}
 	}
 }
