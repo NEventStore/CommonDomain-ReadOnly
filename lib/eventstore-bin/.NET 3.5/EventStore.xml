@@ -38,6 +38,9 @@
       <summary>
             Provides the ability to hook into the pipeline of persisting a commit.
             </summary>
+      <remarks>
+            Instances of this class must be designed to be multi-thread safe such that they can be shared between threads.
+            </remarks>
     </member>
     <member name="M:EventStore.IPipelineHook.Select(EventStore.Commit)">
       <summary>
@@ -123,6 +126,9 @@
       <summary>
             Provides the ability to serialize an object graph to and from a document.
             </summary>
+      <remarks>
+            Instances of this class must be designed to be multi-thread safe such that they can be shared between threads.
+            </remarks>
     </member>
     <member name="M:EventStore.Serialization.IDocumentSerializer.Serialize``1(``0)">
       <summary>
@@ -142,7 +148,7 @@
     </member>
     <member name="T:EventStore.StreamNotFoundException">
       <summary>
-            Represents an attempt to commit the same information more than once.
+            Represents an attempt to retrieve a nonexistent event stream.
             </summary>
     </member>
     <member name="M:EventStore.StreamNotFoundException.#ctor">
@@ -174,6 +180,9 @@
       <summary>
             Indicates the ability to dispatch or publish all messages associated with a particular commit.
             </summary>
+      <remarks>
+            Instances of this class must be designed to be multi-thread safe such that they can be shared between threads.
+            </remarks>
     </member>
     <member name="M:EventStore.Dispatcher.IDispatchCommits.Dispatch(EventStore.Commit)">
       <summary>
@@ -185,6 +194,9 @@
       <summary>
             Indicates the ability to commit events and access events to and from a given stream.
             </summary>
+      <remarks>
+            Instances of this class must be designed to be multi-thread safe such that they can be shared between threads.
+            </remarks>
     </member>
     <member name="M:EventStore.ICommitEvents.GetFrom(System.Guid,System.Int32,System.Int32)">
       <summary>
@@ -212,7 +224,7 @@
             Indicates the ability to track a series of events and commit them to durable storage.
             </summary>
       <remarks>
-            This class is single threaded and should not be shared between threads.
+            Instances of this class are single threaded and should not be shared between threads.
             </remarks>
     </member>
     <member name="M:EventStore.IEventStream.Add(EventStore.EventMessage)">
@@ -270,6 +282,9 @@
       <summary>
             Indicates the ability to get or retrieve a snapshot for a given stream.
             </summary>
+      <remarks>
+            Instances of this class must be designed to be multi-thread safe such that they can be shared between threads.
+            </remarks>
     </member>
     <member name="M:EventStore.IAccessSnapshots.GetSnapshot(System.Guid,System.Int32)">
       <summary>
@@ -290,10 +305,22 @@
       <exception cref="T:EventStore.Persistence.StorageException" />
       <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
+    <member name="M:EventStore.IAccessSnapshots.GetStreamsToSnapshot(System.Int32)">
+      <summary>
+            Gets identifiers for all streams whose head and last snapshot revisions differ by at least the threshold specified.
+            </summary>
+      <param name="maxThreshold">The maximum difference between the head and most recent snapshot revisions.</param>
+      <returns>The streams for which the head and snapshot revisions differ by at least the threshold specified.</returns>
+      <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
+    </member>
     <member name="T:EventStore.IStoreEvents">
       <summary>
             Indicates the ability to store and retreive a stream of events.
             </summary>
+      <remarks>
+            Instances of this class must be designed to be multi-thread safe such that they can be shared between threads.
+            </remarks>
     </member>
     <member name="M:EventStore.IStoreEvents.CreateStream(System.Guid)">
       <summary>
@@ -322,6 +349,15 @@
       <param name="snapshot">The snapshot of the stream to be read.</param>
       <param name="maxRevision">The maximum revision of the stream to be read.</param>
       <returns>A series of committed events represented as a stream.</returns>
+      <exception cref="T:EventStore.Persistence.StorageException" />
+      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
+    </member>
+    <member name="M:EventStore.IStoreEvents.GetFrom(System.DateTime)">
+      <summary>
+            Gets all commits on or after from the specified starting time.
+            </summary>
+      <param name="start">The point in time at which to start.</param>
+      <returns>All commits that have occurred on or after the specified starting time.</returns>
       <exception cref="T:EventStore.Persistence.StorageException" />
       <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
@@ -419,6 +455,9 @@
       <summary>
             Indicates the ability to build a ready-to-use persistence engine.
             </summary>
+      <remarks>
+            Instances of this class must be designed to be multi-thread safe such that they can be shared between threads.
+            </remarks>
     </member>
     <member name="M:EventStore.Persistence.IPersistenceFactory.Build">
       <summary>
@@ -430,6 +469,9 @@
       <summary>
             Provides the ability to serialize and deserialize an object graph.
             </summary>
+      <remarks>
+            Instances of this class must be designed to be multi-thread safe such that they can be shared between threads.
+            </remarks>
     </member>
     <member name="M:EventStore.Serialization.ISerialize.Serialize``1(System.IO.Stream,``0)">
       <summary>
@@ -481,6 +523,9 @@
       <summary>
             Indicates the ability to adapt the underlying persistence infrastructure to behave like a stream of events.
             </summary>
+      <remarks>
+            Instances of this class must be designed to be multi-thread safe such that they can be shared between threads.
+            </remarks>
     </member>
     <member name="M:EventStore.Persistence.IPersistStreams.Initialize">
       <summary>
@@ -511,15 +556,6 @@
             Marks the commit specified as dispatched.
             </summary>
       <param name="commit">The commit to be marked as dispatched.</param>
-      <exception cref="T:EventStore.Persistence.StorageException" />
-      <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
-    </member>
-    <member name="M:EventStore.Persistence.IPersistStreams.GetStreamsToSnapshot(System.Int32)">
-      <summary>
-            Gets identifiers for all streams whose head and last snapshot revisions differ by at least the threshold specified.
-            </summary>
-      <param name="maxThreshold">The maximum difference between the head and most recent snapshot revisions.</param>
-      <returns>The streams for which the head and snapshot revisions differ by at least the threshold specified.</returns>
       <exception cref="T:EventStore.Persistence.StorageException" />
       <exception cref="T:EventStore.Persistence.StorageUnavailableException" />
     </member>
