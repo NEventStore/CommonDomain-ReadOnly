@@ -45,6 +45,7 @@
     <Compile Include="AggregateBase.cs" />
     <Compile Include="ConflictDetector.cs" />
     <Compile Include="ConventionEventRouter.cs" />
+    <Compile Include="ExtensionMethods.cs" />
     <Compile Include="HandlerForDomainEventNotFoundException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegistrationEventRouter.cs" />

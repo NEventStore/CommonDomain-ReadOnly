@@ -8,6 +8,7 @@ namespace CommonDomain.Core
 	public class ConventionEventRouter<TEvent> : IRouteEvents<TEvent>
 	{
 		private readonly IDictionary<Type, Action<TEvent>> handlers = new Dictionary<Type, Action<TEvent>>();
+		private IAggregate registered;
 
 		public virtual void Register<TEventMessage>(Action<TEventMessage> handler) where TEventMessage : TEvent
 		{
@@ -21,6 +22,8 @@ namespace CommonDomain.Core
 		{
 			if (aggregate == null)
 				throw new ArgumentNullException("aggregate");
+
+			this.registered = aggregate;
 
 			// Get instance methods named Apply with one parameter returning void
 			var applyMethods = aggregate.GetType()
@@ -52,13 +55,7 @@ namespace CommonDomain.Core
             if (this.handlers.TryGetValue(eventMessage.GetType(), out handler))
                 handler((TEvent)eventMessage);
             else
-            {
-            	var message = string.Format(
-            		"Cannot apply message to aggregate instance. The aggregate must define a method called void Apply({0} @event)",
-            		eventMessage.GetType().Name);
-
-            	throw new HandlerForDomainEventNotFoundException(message);
-            }
+				this.registered.ThrowHandlerNotFound(eventMessage);
 		}
 
 		private void Register(Type messageType, Action<TEvent> handler)
