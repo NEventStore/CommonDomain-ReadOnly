@@ -50,16 +50,14 @@ namespace CommonDomain.Core
 
 			Action<TEvent> handler;
             if (this.handlers.TryGetValue(eventMessage.GetType(), out handler))
-            {
                 handler((TEvent)eventMessage);
-            }
             else
             {
-                // protect from cases when the Apply Handler is not implemented or is implemented with a 
-                // wrong signature
-                throw new ArgumentException(
-                    string.Format("Cannot apply message to aggregate instance. The aggregate must define a method called void Apply({0} @event)",
-                    eventMessage.GetType().Name));
+            	var message = string.Format(
+            		"Cannot apply message to aggregate instance. The aggregate must define a method called void Apply({0} @event)",
+            		eventMessage.GetType().Name);
+
+            	throw new HandlerForDomainEventNotFoundException(message);
             }
 		}
 
