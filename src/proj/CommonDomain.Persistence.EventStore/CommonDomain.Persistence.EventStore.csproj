@@ -72,8 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="EventStore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=7735eb81c0bd9948, processorArchitecture=MSIL">
-      <Private>True</Private>
-      <HintPath>..\..\packages\EventStore.3.0.11291.42\lib\net40\EventStore.dll</HintPath>
+      <HintPath>..\..\packages\EventStore.3.0.11293.43\lib\net40\EventStore.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="EventStore" Condition="$(TargetFrameworkVersion)=='v4.0'">
