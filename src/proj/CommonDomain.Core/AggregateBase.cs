@@ -4,17 +4,16 @@ namespace CommonDomain.Core
 	using System.Collections;
 	using System.Collections.Generic;
 
-	public abstract class AggregateBase<TEvent> : IAggregate, IEquatable<IAggregate>
-		where TEvent : class
+	public abstract class AggregateBase : IAggregate, IEquatable<IAggregate>
 	{
-		private readonly ICollection<TEvent> uncommittedEvents = new LinkedList<TEvent>();
-		private readonly IRouteEvents<TEvent> registeredRoutes = new ConventionEventRouter<TEvent>();
+		private readonly ICollection<object> uncommittedEvents = new LinkedList<object>();
+		private readonly IRouteEvents registeredRoutes = new ConventionEventRouter();
 
 		protected AggregateBase()
 			: this(null)
 		{
 		}
-		protected AggregateBase(IRouteEvents<TEvent> handler)
+		protected AggregateBase(IRouteEvents handler)
 		{
 			this.registeredRoutes = handler ?? this.registeredRoutes;
 			this.registeredRoutes.Register(this);
@@ -23,13 +22,12 @@ namespace CommonDomain.Core
 		public Guid Id { get; protected set; }
 		public int Version { get; protected set; }
 
-		protected void Register<TRegisteredEvent>(Action<TRegisteredEvent> route)
-			where TRegisteredEvent : class, TEvent
+		protected void Register<T>(Action<T> route)
 		{
 			this.registeredRoutes.Register(route);
 		}
 
-		protected void RaiseEvent(TEvent @event)
+		protected void RaiseEvent(object @event)
 		{
 			((IAggregate)this).ApplyEvent(@event);
 			this.uncommittedEvents.Add(@event);

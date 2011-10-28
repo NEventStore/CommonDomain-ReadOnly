@@ -45,7 +45,12 @@ namespace CommonDomain.Persistence.EventStore
 			}
 		}
 
-		public virtual TAggregate GetById<TAggregate>(Guid id, int versionToLoad) where TAggregate : class, IAggregate
+        public virtual TAggregate GetById<TAggregate>(Guid id) where TAggregate : class, IAggregate
+        {
+            return GetById<TAggregate>(id, 0);
+        }
+
+	    public virtual TAggregate GetById<TAggregate>(Guid id, int versionToLoad) where TAggregate : class, IAggregate
 		{
 			var snapshot = this.GetSnapshot(id, versionToLoad);
 			var stream = this.OpenStream(id, versionToLoad, snapshot);
@@ -70,7 +75,7 @@ namespace CommonDomain.Persistence.EventStore
 		{
 			Snapshot snapshot;
 			if (!this.snapshots.TryGetValue(id, out snapshot))
-				this.snapshots[id] = snapshot = this.eventStore.GetSnapshot(id, version);
+				this.snapshots[id] = snapshot = this.eventStore.Advanced.GetSnapshot(id, version);
 
 			return snapshot;
 		}

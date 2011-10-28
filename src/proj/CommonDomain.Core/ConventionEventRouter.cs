@@ -5,22 +5,25 @@ namespace CommonDomain.Core
 	using System.Linq;
 	using System.Reflection;
 
-	public class ConventionEventRouter<TEvent> : IRouteEvents<TEvent>
+	public class ConventionEventRouter : IRouteEvents
 	{
-		private readonly IDictionary<Type, Action<TEvent>> handlers = new Dictionary<Type, Action<TEvent>>();
+		private readonly IDictionary<Type, Action<object>> handlers = new Dictionary<Type, Action<object>>();
+		private IAggregate registered;
 
-		public virtual void Register<TEventMessage>(Action<TEventMessage> handler) where TEventMessage : TEvent
+		public virtual void Register<T>(Action<T> handler)
 		{
 			if (handler == null)
 				throw new ArgumentNullException("handler");
 
-			this.Register(typeof(TEventMessage), @event => handler((TEventMessage)@event));
+			this.Register(typeof(T), @event => handler((T)@event));
 		}
 
 		public virtual void Register(IAggregate aggregate)
 		{
 			if (aggregate == null)
 				throw new ArgumentNullException("aggregate");
+
+			this.registered = aggregate;
 
 			// Get instance methods named Apply with one parameter returning void
 			var applyMethods = aggregate.GetType()
@@ -44,16 +47,14 @@ namespace CommonDomain.Core
 			if (eventMessage == null)
 				throw new ArgumentNullException("eventMessage");
 
-			if (!(eventMessage is TEvent))
-				throw new ArgumentException(
-					string.Format("Cannot dispatch message. Message must be of type {0}", typeof(TEvent)), "eventMessage");
-
-			Action<TEvent> handler;
-			if (this.handlers.TryGetValue(eventMessage.GetType(), out handler))
-				handler((TEvent)eventMessage);
+			Action<object> handler;
+            if (this.handlers.TryGetValue(eventMessage.GetType(), out handler))
+				handler(eventMessage);
+            else
+				this.registered.ThrowHandlerNotFound(eventMessage);
 		}
 
-		private void Register(Type messageType, Action<TEvent> handler)
+		private void Register(Type messageType, Action<object> handler)
 		{
 			this.handlers[messageType] = handler;
 		}
