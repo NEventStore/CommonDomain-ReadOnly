@@ -10,9 +10,6 @@ if exist packages ( rmdir /s /q "output\packages" )
 mkdir "output\packages"
 
 :: for some reason nuget doesn't like adding files located in directories underneath it.  v1.4 bug?
-::move "publish-net40" "bin\nuget"
-::move "publish-net35" "bin\nuget"
+move output-net40 "bin\nuget"
 
 "src/.nuget/nuget.exe" Pack "nuget/CommonDomain.nuspec" -Version "%VERSION%.%BUILD%" -OutputDirectory "output/packages" -BasePath "."
-
-::rmdir /s /q bin\nuget\publish-net40
