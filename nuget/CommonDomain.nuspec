@@ -9,13 +9,13 @@
     <licenseUrl>https://github.com/joliver/CommonDomain/blob/master/doc/license.txt</licenseUrl>
     <projectUrl>https://github.com/joliver/CommonDomain</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>A domain project for quickly implementing CQRS functionality in domain models. This package is built against commit ebe07bfb60102f532ff9 on github. It's currently not "officially" released by Jonathan, more than in OSS form.</description>
+    <description>A domain project for quickly implementing CQRS functionality in domain models.</description>
     <summary>A domain project for quickly implementing CQRS functionality in domain models.</summary>
     <dependencies>
-      <dependency id="EventStore" version="3.0.11293.43" />
+      <dependency id="EventStore" version="3.0.11305.44" />
     </dependencies>
   </metadata>
   <files>
-    <file src="output\bin\**" target="lib\net40"/>
+    <file src="output-net40\bin\**" target="lib\net40"/>
   </files>  
 </package>

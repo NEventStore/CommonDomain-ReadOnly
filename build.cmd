@@ -9,18 +9,15 @@ SET TARGET_CONFIG=%1
 
 :framework_version
 SET FRAMEWORK_VERSION=v4.0
+SET OUTPUT=output-net40
 SET ILMERGE_VERSION=v4,%FRAMEWORK_PATH%
 SET LIB_DIRECTORY=4.0
-IF x==%2x GOTO build
-SET FRAMEWORK_VERSION=%2
-SET ILMERGE_VERSION=%3
-SET LIB_DIRECTORY=3.5
 
 :build
-if exist output ( rmdir /s /q output )
-if exist output ( rmdir /s /q output )
-mkdir output
-mkdir output\bin
+if exist %OUTPUT% ( rmdir /s /q %OUTPUT% )
+if exist %OUTPUT% ( rmdir /s /q %OUTPUT% )
+mkdir %OUTPUT%
+mkdir %OUTPUT%\bin
 
 echo Compiling / Target: %FRAMEWORK_VERSION% / Config: %TARGET_CONFIG%
 msbuild /nologo /verbosity:quiet src/CommonDomain.sln /p:Configuration=%TARGET_CONFIG% /t:Clean
@@ -32,13 +29,11 @@ SET FILES_TO_MERGE=%FILES_TO_MERGE% "src/proj/CommonDomain/bin/%TARGET_CONFIG%/C
 SET FILES_TO_MERGE=%FILES_TO_MERGE% "src/proj/CommonDomain.Core/bin/%TARGET_CONFIG%/CommonDomain.Core.dll"
 SET FILES_TO_MERGE=%FILES_TO_MERGE% "src/proj/CommonDomain.Persistence/bin/%TARGET_CONFIG%/CommonDomain.Persistence.dll"
 SET FILES_TO_MERGE=%FILES_TO_MERGE% "src/proj/CommonDomain.Persistence.EventStore/bin/%TARGET_CONFIG%/CommonDomain.Persistence.EventStore.dll"
-bin\ilmerge-bin\ILMerge.exe /keyfile:src/CommonDomain.snk /xmldocs /targetplatform:%ILMERGE_VERSION% /out:output/bin/CommonDomain.dll %FILES_TO_MERGE%
-copy "lib\eventstore-bin\.NET %LIB_DIRECTORY%\*.*" "output\bin\"
+bin\ilmerge-bin\ILMerge.exe /keyfile:src/CommonDomain.snk /xmldocs /targetplatform:%ILMERGE_VERSION% /out:%OUTPUT%/bin/CommonDomain.dll %FILES_TO_MERGE%
 
 echo Copying
-mkdir output\doc
-copy doc\*.* output\doc
-copy "lib\eventstore-bin\doc\license.txt" "output\doc\EventStore license.txt"
+mkdir %OUTPUT%\doc
+copy doc\*.* %OUTPUT%\doc
 
 echo Cleaning
 msbuild /nologo /verbosity:quiet src/CommonDomain.sln /p:Configuration=%TARGET_CONFIG% /t:Clean
