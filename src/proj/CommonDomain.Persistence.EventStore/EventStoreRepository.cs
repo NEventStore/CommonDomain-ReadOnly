@@ -47,7 +47,7 @@ namespace CommonDomain.Persistence.EventStore
 
         public virtual TAggregate GetById<TAggregate>(Guid id) where TAggregate : class, IAggregate
         {
-            return GetById<TAggregate>(id, 0);
+            return GetById<TAggregate>(id, int.MaxValue);
         }
 
 	    public virtual TAggregate GetById<TAggregate>(Guid id, int versionToLoad) where TAggregate : class, IAggregate
