@@ -7,8 +7,23 @@ namespace CommonDomain.Core
 
 	public class ConventionEventRouter : IRouteEvents
 	{
-		private readonly IDictionary<Type, Action<object>> handlers = new Dictionary<Type, Action<object>>();
+	    readonly bool throwOnApplyNotFound;
+	    private readonly IDictionary<Type, Action<object>> handlers = new Dictionary<Type, Action<object>>();
 		private IAggregate registered;
+
+	    public ConventionEventRouter() : this(true)
+	    {
+	    }
+
+	    public ConventionEventRouter(bool throwOnApplyNotFound)
+	    {
+	        this.throwOnApplyNotFound = throwOnApplyNotFound;
+	    }
+
+        public ConventionEventRouter(bool throwOnApplyNotFound, IAggregate aggregate) : this(throwOnApplyNotFound)
+	    {
+	        Register(aggregate);
+	    }
 
 		public virtual void Register<T>(Action<T> handler)
 		{
@@ -50,7 +65,7 @@ namespace CommonDomain.Core
 			Action<object> handler;
             if (this.handlers.TryGetValue(eventMessage.GetType(), out handler))
 				handler(eventMessage);
-            else
+            else if(this.throwOnApplyNotFound)
 				this.registered.ThrowHandlerNotFound(eventMessage);
 		}
 
