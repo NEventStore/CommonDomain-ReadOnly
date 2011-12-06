@@ -43,7 +43,7 @@ namespace CommonDomain.Core
 
         protected void Register<T>(Action<T> route)
         {
-            this.registeredRoutes.Register(route);
+            this.RegisteredRoutes.Register(route);
         }
 
         protected void RaiseEvent(object @event)
@@ -53,7 +53,7 @@ namespace CommonDomain.Core
         }
         void IAggregate.ApplyEvent(object @event)
         {
-            this.registeredRoutes.Dispatch(@event);
+            this.RegisteredRoutes.Dispatch(@event);
             this.Version++;
         }
         ICollection IAggregate.GetUncommittedEvents()
