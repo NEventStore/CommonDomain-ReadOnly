@@ -54,6 +54,7 @@
     <Compile Include="SagaEventStoreRepository.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="TypeExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\CustomDictionary.xml">

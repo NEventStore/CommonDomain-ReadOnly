@@ -120,6 +120,9 @@
   <data name="ConflictingCommand" xml:space="preserve">
     <value>The command issued conflicted with another command that was sent by another user, actor, or process in the system.  The change could not be automatically merged.  Please review the data that has changed and try your change again.</value>
   </data>
+  <data name="NotAggregateType" xml:space="preserve">
+    <value>The argument must implement IAggregate.</value>
+  </data>
   <data name="NoWork" xml:space="preserve">
     <value>There were no uncommitted changes to persist.  When attempting to save an aggregate there must be at least one uncommitted event to persist.</value>
   </data>
