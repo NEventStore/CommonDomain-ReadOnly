@@ -45,20 +45,20 @@ namespace CommonDomain.Persistence.EventStore
 			}
 		}
 
-        public virtual TAggregate GetById<TAggregate>(Guid id) where TAggregate : class, IAggregate
+        public virtual IAggregate GetById(Type aggregateType, Guid id)
         {
-            return GetById<TAggregate>(id, int.MaxValue);
+            return GetById(aggregateType, id, int.MaxValue);
         }
 
-	    public virtual TAggregate GetById<TAggregate>(Guid id, int versionToLoad) where TAggregate : class, IAggregate
+	    public virtual IAggregate GetById(Type aggregateType, Guid id, int versionToLoad)
 		{
 			var snapshot = this.GetSnapshot(id, versionToLoad);
 			var stream = this.OpenStream(id, versionToLoad, snapshot);
-			var aggregate = this.GetAggregate<TAggregate>(snapshot, stream);
+			var aggregate = this.GetAggregate(aggregateType, snapshot, stream);
 
 			ApplyEventsToAggregate(versionToLoad, stream, aggregate);
 
-			return aggregate as TAggregate;
+			return aggregate;
 		}
 		private static void ApplyEventsToAggregate(int versionToLoad, IEventStream stream, IAggregate aggregate)
 		{
@@ -66,10 +66,13 @@ namespace CommonDomain.Persistence.EventStore
 				foreach (var @event in stream.CommittedEvents.Select(x => x.Body))
 					aggregate.ApplyEvent(@event);
 		}
-		private IAggregate GetAggregate<TAggregate>(Snapshot snapshot, IEventStream stream)
+		private IAggregate GetAggregate(Type aggregateType, Snapshot snapshot, IEventStream stream)
 		{
+			if (aggregateType == null) throw new ArgumentNullException("aggregateType");
+			if (!aggregateType.Implements(typeof(IAggregate))) throw new ArgumentException(ExceptionMessages.NotAggregateType, "aggregateType");
+
 			var memento = snapshot == null ? null : snapshot.Payload as IMemento;
-			return this.factory.Build(typeof(TAggregate), stream.StreamId, memento);
+		return this.factory.Build(aggregateType, stream.StreamId, memento);
 		}
 		private Snapshot GetSnapshot(Guid id, int version)
 		{
