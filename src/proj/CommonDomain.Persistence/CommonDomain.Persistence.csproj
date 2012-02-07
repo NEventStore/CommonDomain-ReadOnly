@@ -46,6 +46,7 @@
     </Compile>
     <Compile Include="ConflictingCommandException.cs" />
     <Compile Include="IConstructAggregates.cs" />
+    <Compile Include="IConstructSagas.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="ISagaRepository.cs" />
     <Compile Include="PersistenceException.cs" />

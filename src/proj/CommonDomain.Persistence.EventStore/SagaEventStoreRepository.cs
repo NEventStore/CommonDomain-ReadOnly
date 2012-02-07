@@ -12,13 +12,15 @@ namespace CommonDomain.Persistence.EventStore
 		private const string UndispatchedMessageHeader = "UndispatchedMessage.";
 		private readonly IDictionary<Guid, IEventStream> streams = new Dictionary<Guid, IEventStream>();
 		private readonly IStoreEvents eventStore;
+	    private readonly IConstructSagas sagaFactory;
 
-		public SagaEventStoreRepository(IStoreEvents eventStore)
+	    public SagaEventStoreRepository(IStoreEvents eventStore, IConstructSagas sagaFactory)
 		{
-			this.eventStore = eventStore;
+		    this.eventStore = eventStore;
+		    this.sagaFactory = sagaFactory;
 		}
 
-		public void Dispose()
+	    public void Dispose()
 		{
 			this.Dispose(true);
 			GC.SuppressFinalize(this);
@@ -37,9 +39,9 @@ namespace CommonDomain.Persistence.EventStore
 			}
 		}
 
-		public TSaga GetById<TSaga>(Guid sagaId) where TSaga : class, ISaga, new()
+		public TSaga GetById<TSaga>(Guid sagaId) where TSaga : class, ISaga
 		{
-			return BuildSaga<TSaga>(this.OpenStream(sagaId));
+			return BuildSaga<TSaga>(sagaId, this.OpenStream(sagaId));
 		}
 		private IEventStream OpenStream(Guid sagaId)
 		{
@@ -59,9 +61,9 @@ namespace CommonDomain.Persistence.EventStore
 			return this.streams[sagaId] = stream;
 		}
 
-		private static TSaga BuildSaga<TSaga>(IEventStream stream) where TSaga : class, ISaga, new()
+	    private TSaga BuildSaga<TSaga>(Guid sagaId, IEventStream stream) where TSaga : class, ISaga
 		{
-			var saga = new TSaga();
+            var saga = sagaFactory.Build<TSaga>(sagaId);
 			foreach (var @event in stream.CommittedEvents.Select(x => x.Body))
 				saga.Transition(@event);
 
