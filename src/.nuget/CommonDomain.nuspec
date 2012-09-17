@@ -2,20 +2,21 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>CommonDomain</id>
-    <version>1.4.0</version>
+    <version>1.5.0</version>
     <title>CommonDomain</title>
-    <authors>Jonathan Oliver</authors>
-    <owners>Henrik Feldt</owners>
+    <authors>Jonathan Oliver, Jonathan Matheus</authors>
+    <owners>Henrik Feldt, Jonathan Oliver, Jonathan Matheus</owners>
     <licenseUrl>https://github.com/joliver/CommonDomain/blob/master/doc/license.txt</licenseUrl>
     <projectUrl>https://github.com/joliver/CommonDomain</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A domain project for quickly implementing CQRS functionality in domain models.</description>
     <summary>A domain project for quickly implementing CQRS functionality in domain models.</summary>
+    <tags>events, event sourcing, cqrs, storage, persistence, database</tags>
     <dependencies>
-      <dependency id="EventStore" version="3.0.11305.44" />
+      <dependency id="EventStore" version="[3.1.11305.44,4.0.0.0)" />
     </dependencies>
   </metadata>
   <files>
-    <file src="output-net40\bin\**" target="lib\net40"/>
+    <file src="publish-net40\bin\**" target="lib\net40"/>
   </files>  
 </package>
