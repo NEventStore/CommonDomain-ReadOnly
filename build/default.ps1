@@ -40,7 +40,7 @@ task Package -depends Build, PackageCommonDomain, PackageDocs {
 
 task PackageCommonDomain -depends Clean, Compile {
 	mkdir "$output_directory\bin" | out-null
-	Merge-Assemblies -outputFile "$output_directory\bin\CommonDomain.dll" -keyfile $keyFile -files @(
+	Merge-Assemblies -outputFile "$output_directory\bin\CommonDomain.dll" -keyfile $keyFile -exclude "CommonDomain.*" -files @(
 		"$src_directory\proj\CommonDomain\bin\$target_config\CommonDomain.dll"
 		"$src_directory\proj\CommonDomain.Core\bin\$target_config\CommonDomain.Core.dll"
 		"$src_directory\proj\CommonDomain.Persistence\bin\$target_config\CommonDomain.Persistence.dll"
