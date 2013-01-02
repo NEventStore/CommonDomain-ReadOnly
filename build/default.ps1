@@ -14,6 +14,7 @@ properties {
 
 	$ilMergeModule.ilMergePath = "$base_directory\bin\ilmerge-bin\ILMerge.exe"
 	$nuget_dir = "$src_directory\.nuget"
+	$prerelease = $null
 }
 
 task default -depends Build
@@ -59,5 +60,9 @@ task Clean {
 }
 
 task NuGetPack -depends Package {
-	gci -r -i *.nuspec "$nuget_dir" |% { .$nuget_dir\nuget.exe pack $_ -basepath $base_directory -o $publish_directory -version $version }
+	$pkgVersion = $version
+	if($prerelease) {
+		$pkgVersion = "$pkgVersion-$prerelease"
+	}
+	gci -r -i *.nuspec "$nuget_dir" |% { .$nuget_dir\nuget.exe pack $_ -basepath $base_directory -o $publish_directory -version $pkgVersion }
 }
