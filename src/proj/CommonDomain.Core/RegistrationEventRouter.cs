@@ -6,7 +6,7 @@ namespace CommonDomain.Core
 	public class RegistrationEventRouter : IRouteEvents
 	{
 		private readonly IDictionary<Type, Action<object>> handlers = new Dictionary<Type, Action<object>>();
-		private IAggregate regsitered;
+		private IAggregate registered;
 
 		public virtual void Register<T>(Action<T> handler)
 		{
@@ -17,7 +17,7 @@ namespace CommonDomain.Core
 			if (aggregate == null)
 				throw new ArgumentNullException("aggregate");
 
-			this.regsitered = aggregate;
+			this.registered = aggregate;
 		}
 
 		public virtual void Dispatch(object eventMessage)
@@ -25,7 +25,7 @@ namespace CommonDomain.Core
 			Action<object> handler;
 
 			if (!this.handlers.TryGetValue(eventMessage.GetType(), out handler))
-				this.regsitered.ThrowHandlerNotFound(eventMessage);
+				this.registered.ThrowHandlerNotFound(eventMessage);
 
 			handler(eventMessage);
 		}
