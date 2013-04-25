@@ -71,8 +71,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="EventStore">
-      <HintPath>..\..\packages\EventStore.3.0.11305.44\lib\net40\EventStore.dll</HintPath>
+    <Reference Include="EventStore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=7735eb81c0bd9948, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\_lib\EventStore.dll</HintPath>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
