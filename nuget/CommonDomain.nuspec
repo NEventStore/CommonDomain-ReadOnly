@@ -12,7 +12,7 @@
     <description>A domain project for quickly implementing CQRS functionality in domain models.</description>
     <summary>A domain project for quickly implementing CQRS functionality in domain models.</summary>
     <dependencies>
-      <dependency id="EventStore" version="3.0.11305.44" />
+      <dependency id="EventStore" version="3.1.0.9" />
     </dependencies>
   </metadata>
   <files>

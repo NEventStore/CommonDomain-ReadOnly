@@ -53,8 +53,11 @@ namespace CommonDomain.Core
         }
         void IAggregate.ApplyEvent(object @event)
         {
-            this.RegisteredRoutes.Dispatch(@event);
-            this.Version++;
+            foreach (var item in ( ( @event is IEnumerable<object> ) ? @event as IEnumerable<object> : new []{ @event } ))
+            {
+                this.RegisteredRoutes.Dispatch(item);
+                this.Version++;
+            }
         }
         ICollection IAggregate.GetUncommittedEvents()
         {
