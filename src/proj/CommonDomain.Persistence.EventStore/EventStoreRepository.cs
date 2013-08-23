@@ -3,8 +3,8 @@ namespace CommonDomain.Persistence.EventStore
 	using System;
 	using System.Collections.Generic;
 	using System.Linq;
-	using global::EventStore;
-	using global::EventStore.Persistence;
+	using global::NEventStore;
+	using global::NEventStore.Persistence;
 
 	public class EventStoreRepository : IRepository, IDisposable
 	{
