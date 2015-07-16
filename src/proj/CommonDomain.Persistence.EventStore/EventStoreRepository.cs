@@ -69,7 +69,7 @@ namespace CommonDomain.Persistence.EventStore
 		private IAggregate GetAggregate<TAggregate>(Snapshot snapshot, IEventStream stream)
 		{
 			var memento = snapshot == null ? null : snapshot.Payload as IMemento;
-			return this.factory.Build(typeof(TAggregate), stream.StreamId, memento);
+			return this.factory.Build(typeof(TAggregate), stream.StreamId, memento, stream.CommittedHeaders);
 		}
 		private Snapshot GetSnapshot(Guid id, int version)
 		{
